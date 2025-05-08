@@ -73,7 +73,7 @@ Modern cybersecurity landscapes face growing threats that require adaptive, inte
 ## 📸 screenshots
 
 ### 📊 dashboard
-![dashboard](https://github.com/user-attachments/assets/183cf61b-b684-4dff-8937-b442c907d2a4)
+![dashboard]()
 
 *Live threat visualization and system activity monitoring*
 
