@@ -83,7 +83,7 @@ Modern cybersecurity landscapes face growing threats that require adaptive, inte
 *Run red-team simulations in a safe, isolated environment*
 
 ### 🎓 training
-![training](https://example.com/screenshots/training.png)
+![training](https://drive.google.com/file/d/1CklrHiIK1NU37M-hMJIq2dQdB1kH9GwE/view?usp=sharing)
 
 *Hands-on labs and scenarios for skill development*
 
