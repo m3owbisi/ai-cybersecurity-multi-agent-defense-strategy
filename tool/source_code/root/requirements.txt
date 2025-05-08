@@ -1,0 +1,18 @@
+flask==2.3.2
+gunicorn==21.2.0
+sqlalchemy==2.0.29
+psycopg2-binary==2.9.9      # only if using PostgreSQL
+flask-cors==4.0.0
+flask-sqlalchemy==3.1.1
+python-dotenv==1.0.1
+requests==2.31.0
+scikit-learn==1.4.2
+numpy==1.26.4
+pandas==2.2.2
+matplotlib==3.8.3
+chartjs==0.3.1               # unofficial wrapper if applicable
+openai-gym
+openai
+ray[rllib]
+zeromq
+pika

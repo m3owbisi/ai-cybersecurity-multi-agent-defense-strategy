@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+
+{% block title %}AI Cybersecurity Platform | Simulation{% endblock %}
+
+{% block page_title %}Attack Simulation{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">Simulation</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Simulation Controls</h5>
+            </div>
+            <div class="card-body">
+                <form id="simulation-form">
+                    <div class="mb-3">
+                        <label for="scenario-select" class="form-label">Attack Scenario</label>
+                        <select class="form-select" id="scenario-select">
+                            <option value="ransomware">Ransomware Attack</option>
+                            <option value="phishing">Phishing Campaign</option>
+                            <option value="ddos">DDoS Attack</option>
+                            <option value="data_exfiltration">Data Exfiltration</option>
+                            <option value="supply_chain">Supply Chain Attack</option>
+                            <option value="custom">Custom Scenario</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="difficulty-select" class="form-label">Difficulty Level</label>
+                        <select class="form-select" id="difficulty-select">
+                            <option value="easy">Low (Basic Techniques)</option>
+                            <option value="medium" selected>Medium (Advanced Techniques)</option>
+                            <option value="hard">High (APT-Level Techniques)</option>
+                            <option value="extreme">Extreme (Zero-Day Vulnerabilities)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="target-select" class="form-label">Target Systems</label>
+                        <select class="form-select" id="target-select" multiple size="4">
+                            <option value="web_servers">Web Servers</option>
+                            <option value="databases">Database Servers</option>
+                            <option value="endpoints">Endpoint Workstations</option>
+                            <option value="network">Network Infrastructure</option>
+                            <option value="cloud">Cloud Resources</option>
+                        </select>
+                        <div class="form-text">Hold Ctrl/Cmd to select multiple targets</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label d-block">Simulation Options</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="real-time-option" checked>
+                            <label class="form-check-label" for="real-time-option">Real-time Analysis</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-respond-option">
+                            <label class="form-check-label" for="auto-respond-option">Automated Defense Response</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="detailed-logs-option" checked>
+                            <label class="form-check-label" for="detailed-logs-option">Detailed Event Logging</label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" id="start-simulation-btn">
+                            <i class="bi bi-play-fill"></i> Start Simulation
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="reset-simulation-btn" disabled>
+                            <i class="bi bi-arrow-repeat"></i> Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Network Visualization</h5>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary view-toggle-btn active" data-view="network">
+                        <i class="bi bi-hdd-network"></i> Network
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary view-toggle-btn" data-view="tree">
+                        <i class="bi bi-diagram-3"></i> Attack Tree
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="network-visualization" id="network-visualization">
+                    <!-- Network visualization will be rendered here -->
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <div class="text-center">
+                            <i class="bi bi-hdd-network display-1 text-secondary mb-3"></i>
+                            <h4>Select a scenario and start the simulation</h4>
+                            <p class="text-muted">Network visualization will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Simulation Events</h5>
+                <span class="badge bg-primary" id="event-counter">0</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="event-log" id="simulation-log">
+                    <div class="p-4 text-center">
+                        <i class="bi bi-clock-history text-muted mb-2" style="font-size: 2rem;"></i>
+                        <p>Events will appear here once simulation starts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Defense Response</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark mb-0" id="defense-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Attack Vector</th>
+                                <th>Defense Action</th>
+                                <th>Effectiveness</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center">
+                                    <p class="my-4 text-muted">Defense actions will appear here during simulation</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Modal -->
+<div class="modal fade" id="simulationResultsModal" tabindex="-1" aria-labelledby="simulationResultsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="simulationResultsModalLabel">Simulation Results</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Scenario</h6>
+                        <p class="lead" id="result-scenario-name">Ransomware Attack</p>
+                        
+                        <h6 class="text-muted mt-3">Duration</h6>
+                        <p id="result-duration">10 minutes 32 seconds</p>
+                        
+                        <h6 class="text-muted mt-3">Defense Effectiveness</h6>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-success" id="result-defense-progress" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <p id="result-defense-score">75%</p>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Attack Success Rate</h6>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-danger" id="result-attack-progress" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <p id="result-attack-score">35%</p>
+                        
+                        <h6 class="text-muted mt-3">Vulnerabilities Discovered</h6>
+                        <ul class="list-group" id="result-vulnerabilities">
+                            <li class="list-group-item bg-dark">Unpatched web server (CVE-2023-1234)</li>
+                            <li class="list-group-item bg-dark">Weak password policy enforcement</li>
+                            <li class="list-group-item bg-dark">Insecure file permissions on shared drive</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="border-top border-secondary pt-3 mt-2">
+                    <h6>Key Findings</h6>
+                    <ul id="result-findings">
+                        <li>Defense systems successfully identified the initial access attempt but failed to prevent lateral movement.</li>
+                        <li>File encryption was partially successful before being detected and stopped.</li>
+                        <li>Backup systems remained secure and would allow for rapid recovery.</li>
+                    </ul>
+                </div>
+                
+                <div class="border-top border-secondary pt-3 mt-2">
+                    <h6>Recommendations</h6>
+                    <ul id="result-recommendations">
+                        <li>Update web server to latest security patch</li>
+                        <li>Implement network segmentation to prevent lateral movement</li>
+                        <li>Review and strengthen endpoint protection policies</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="download-report-btn">
+                    <i class="bi bi-download"></i> Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize network visualization
+        const container = document.getElementById('network-visualization');
+        
+        // Sample nodes and edges for the network
+        const nodes = new vis.DataSet([
+            { id: 1, label: 'Internet', shape: 'cloud', color: { background: '#6c757d', border: '#495057' } },
+            { id: 2, label: 'Firewall', shape: 'box', color: { background: '#0d6efd', border: '#0a58ca' } },
+            { id: 3, label: 'Web Server', shape: 'server', color: { background: '#198754', border: '#146c43' } },
+            { id: 4, label: 'App Server', shape: 'server', color: { background: '#198754', border: '#146c43' } },
+            { id: 5, label: 'Database', shape: 'database', color: { background: '#198754', border: '#146c43' } },
+            { id: 6, label: 'Admin', shape: 'icon', icon: { face: 'FontAwesome', code: '\uf007', color: '#0dcaf0' } },
+            { id: 7, label: 'Workstation 1', shape: 'desktop', color: { background: '#198754', border: '#146c43' } },
+            { id: 8, label: 'Workstation 2', shape: 'desktop', color: { background: '#198754', border: '#146c43' } }
+        ]);
+        
+        const edges = new vis.DataSet([
+            { from: 1, to: 2 },
+            { from: 2, to: 3 },
+            { from: 2, to: 4 },
+            { from: 3, to: 5 },
+            { from: 4, to: 5 },
+            { from: 2, to: 6 },
+            { from: 6, to: 7 },
+            { from: 6, to: 8 }
+        ]);
+        
+        // Network configuration
+        const data = { nodes, edges };
+        const options = {
+            nodes: {
+                font: {
+                    color: '#ffffff',
+                    face: 'Roboto'
+                },
+                borderWidth: 2,
+                shadow: true
+            },
+            edges: {
+                width: 2,
+                color: { color: '#495057', highlight: '#0d6efd' },
+                smooth: { type: 'continuous' }
+            },
+            physics: {
+                enabled: true,
+                hierarchicalRepulsion: {
+                    centralGravity: 0.0,
+                    springLength: 150,
+                    springConstant: 0.01,
+                    nodeDistance: 200,
+                    damping: 0.09
+                },
+                solver: 'hierarchicalRepulsion'
+            },
+            interaction: {
+                hover: true,
+                navigationButtons: true,
+                keyboard: {
+                    enabled: true,
+                    bindToWindow: false
+                }
+            }
+        };
+        
+        // Create the network
+        let network = null;
+        
+        // Start simulation button handler
+        document.getElementById('start-simulation-btn').addEventListener('click', function() {
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Starting...';
+            
+            // Initialize the network if not already done
+            if (!network) {
+                network = new vis.Network(container, data, options);
+                
+                // Network events
+                network.on('click', function(params) {
+                    if (params.nodes.length > 0) {
+                        const nodeId = params.nodes[0];
+                        const node = nodes.get(nodeId);
+                        showToast(`Selected: ${node.label}`, 'Node Information', 'info');
+                    }
+                });
+            }
+            
+            // Clear the default placeholder content
+            container.innerHTML = '';
+            
+            // Simulate events after short delay
+            setTimeout(() => {
+                // Enable reset button
+                document.getElementById('reset-simulation-btn').disabled = false;
+                
+                // Update button
+                this.innerHTML = '<i class="bi bi-pause-fill"></i> Pause Simulation';
+                this.disabled = false;
+                
+                // Start simulation events
+                startSimulationEvents();
+                
+                // Show attack progression on the network
+                simulateAttack();
+            }, 1500);
+        });
+        
+        // Simulate attack events
+        function startSimulationEvents() {
+            const log = document.getElementById('simulation-log');
+            const eventCounter = document.getElementById('event-counter');
+            const defenseTable = document.getElementById('defense-table').querySelector('tbody');
+            
+            // Clear previous content
+            log.innerHTML = '';
+            defenseTable.innerHTML = '';
+            let eventCount = 0;
+            
+            // Sample attack events for ransomware scenario
+            const events = [
+                { time: '00:00', type: 'attack', message: 'Initial access attempt detected via phishing email with malicious attachment' },
+                { time: '00:05', type: 'defense', message: 'Email filtering identified suspicious attachment pattern', defense: 'Email scanning', effectiveness: 'Medium' },
+                { time: '00:10', type: 'attack', message: 'User opened malicious attachment on Workstation 2' },
+                { time: '00:12', type: 'attack', message: 'Malware establishes connection to command and control server' },
+                { time: '00:15', type: 'defense', message: 'Unusual network connection attempt detected', defense: 'Network monitoring', effectiveness: 'High' },
+                { time: '00:18', type: 'defense', message: 'Connection to known malicious IP blocked', defense: 'Firewall rule', effectiveness: 'High' },
+                { time: '00:25', type: 'attack', message: 'Malware attempting to escalate privileges on Workstation 2' },
+                { time: '00:30', type: 'attack', message: 'Lateral movement attempt detected from Workstation 2 to Admin machine' },
+                { time: '00:35', type: 'defense', message: 'Lateral movement partially blocked', defense: 'Network segmentation', effectiveness: 'Medium' },
+                { time: '00:40', type: 'attack', message: 'Ransomware payload trying to access file shares' },
+                { time: '00:42', type: 'defense', message: 'Abnormal file access pattern detected', defense: 'Behavior analysis', effectiveness: 'High' },
+                { time: '00:45', type: 'defense', message: 'File encryption attempt blocked on network shares', defense: 'Access control', effectiveness: 'High' },
+                { time: '00:50', type: 'attack', message: 'Encryption of local files in progress on Workstation 2' },
+                { time: '00:55', type: 'defense', message: 'Process terminated based on behavior pattern', defense: 'Endpoint protection', effectiveness: 'Medium' },
+                { time: '01:00', type: 'network', message: 'Isolating Workstation 2 from network to prevent further spread' },
+                { time: '01:05', type: 'defense', message: 'System restoration from backup initiated for Workstation 2', defense: 'Recovery protocol', effectiveness: 'High' }
+            ];
+            
+            // Add events to the log with a delay between each
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i >= events.length) {
+                    clearInterval(interval);
+                    setTimeout(showResults, 1000);
+                    return;
+                }
+                
+                const event = events[i];
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                
+                // Format based on event type
+                let typeClass = '';
+                switch (event.type) {
+                    case 'attack':
+                        typeClass = 'event-type-attack';
+                        break;
+                    case 'defense':
+                        typeClass = 'event-type-defense';
+                        break;
+                    case 'network':
+                        typeClass = 'event-type-network';
+                        break;
+                    default:
+                        typeClass = 'event-type-alert';
+                }
+                
+                eventItem.innerHTML = `
+                    <span class="event-time">[${event.time}]</span>
+                    <span class="${typeClass}">${event.type.toUpperCase()}:</span> ${event.message}
+                `;
+                
+                log.appendChild(eventItem);
+                log.scrollTop = log.scrollHeight;
+                
+                // Update event counter
+                eventCount++;
+                eventCounter.textContent = eventCount;
+                
+                // If defense event, also add to defense table
+                if (event.type === 'defense' && event.defense) {
+                    const row = document.createElement('tr');
+                    
+                    // Determine effectiveness badge color
+                    let badgeClass = 'bg-warning';
+                    if (event.effectiveness === 'High') {
+                        badgeClass = 'bg-success';
+                    } else if (event.effectiveness === 'Low') {
+                        badgeClass = 'bg-danger';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${event.time}</td>
+                        <td>${determineAttackVector(event.message)}</td>
+                        <td>${event.defense}</td>
+                        <td><span class="badge ${badgeClass}">${event.effectiveness}</span></td>
+                    `;
+                    
+                    if (defenseTable.querySelector('td[colspan="4"]')) {
+                        defenseTable.innerHTML = '';
+                    }
+                    defenseTable.appendChild(row);
+                }
+                
+                i++;
+            }, 500);
+        }
+        
+        // Determine attack vector based on message
+        function determineAttackVector(message) {
+            if (message.includes('phishing')) return 'Phishing';
+            if (message.includes('malicious attachment')) return 'Malicious Attachment';
+            if (message.includes('command and control')) return 'C2 Communication';
+            if (message.includes('escalate privileges')) return 'Privilege Escalation';
+            if (message.includes('lateral movement')) return 'Lateral Movement';
+            if (message.includes('file access')) return 'Unauthorized Access';
+            if (message.includes('encryption')) return 'Encryption';
+            return 'Unknown';
+        }
+        
+        // Simulate attack on the network visualization
+        function simulateAttack() {
+            if (!network) return;
+            
+            // Style for compromised nodes
+            const compromisedStyle = {
+                background: '#dc3545',
+                border: '#b02a37'
+            };
+            
+            // Style for at-risk nodes
+            const atRiskStyle = {
+                background: '#fd7e14',
+                border: '#ca6510'
+            };
+            
+            // Simulate infection progression
+            setTimeout(() => {
+                // Step 1: Compromise Workstation 2
+                nodes.update({ id: 8, color: compromisedStyle });
+            }, 2000);
+            
+            setTimeout(() => {
+                // Step 2: Connection attempt to Admin
+                edges.update({ from: 8, to: 6, color: { color: '#dc3545' } });
+                
+                // Admin at risk
+                nodes.update({ id: 6, color: atRiskStyle });
+            }, 5000);
+            
+            setTimeout(() => {
+                // Step 3: Partial compromise of Admin
+                nodes.update({ id: 6, color: { background: '#fd7e14', border: '#ca6510' } });
+                
+                // Workstation 1 at risk
+                nodes.update({ id: 7, color: atRiskStyle });
+            }, 8000);
+            
+            setTimeout(() => {
+                // Step 4: Trying to access servers
+                edges.update([
+                    { from: 6, to: 3, color: { color: '#fd7e14' } },
+                    { from: 6, to: 4, color: { color: '#fd7e14' } }
+                ]);
+                
+                // Servers at risk
+                nodes.update([
+                    { id: 3, color: atRiskStyle },
+                    { id: 4, color: atRiskStyle }
+                ]);
+            }, 10000);
+            
+            setTimeout(() => {
+                // Step 5: Defense response - isolate workstation 2
+                edges.update([
+                    { from: 6, to: 8, color: { color: '#495057', dashes: [5, 5] } },
+                    { from: 8, to: 6, color: { color: '#495057', dashes: [5, 5] } }
+                ]);
+            }, 13000);
+            
+            setTimeout(() => {
+                // Step 6: Defense response - protect servers
+                nodes.update([
+                    { id: 3, color: { background: '#198754', border: '#146c43' } },
+                    { id: 4, color: { background: '#198754', border: '#146c43' } }
+                ]);
+                
+                edges.update([
+                    { from: 6, to: 3, color: { color: '#495057' } },
+                    { from: 6, to: 4, color: { color: '#495057' } }
+                ]);
+            }, 15000);
+        }
+        
+        // Show simulation results
+        function showResults() {
+            // Update result fields with dynamic data
+            document.getElementById('result-scenario-name').textContent = document.getElementById('scenario-select').options[document.getElementById('scenario-select').selectedIndex].text;
+            document.getElementById('result-duration').textContent = '1 minute 5 seconds';
+            
+            // Set defense score
+            const defenseScore = 75;
+            document.getElementById('result-defense-progress').style.width = `${defenseScore}%`;
+            document.getElementById('result-defense-score').textContent = `${defenseScore}%`;
+            
+            // Set attack score
+            const attackScore = 35;
+            document.getElementById('result-attack-progress').style.width = `${attackScore}%`;
+            document.getElementById('result-attack-score').textContent = `${attackScore}%`;
+            
+            // Show results modal
+            const resultsModal = new bootstrap.Modal(document.getElementById('simulationResultsModal'));
+            resultsModal.show();
+        }
+        
+        // Reset simulation button handler
+        document.getElementById('reset-simulation-btn').addEventListener('click', function() {
+            // Reset network visualization to initial state
+            if (network) {
+                nodes.forEach(node => {
+                    if (node.id !== 1 && node.id !== 2) {
+                        if (node.shape === 'server' || node.shape === 'desktop') {
+                            nodes.update({ id: node.id, color: { background: '#198754', border: '#146c43' } });
+                        }
+                    }
+                });
+                
+                edges.forEach(edge => {
+                    edges.update({ id: edge.id, color: { color: '#495057' }, dashes: false });
+                });
+            }
+            
+            // Reset logs and defense table
+            document.getElementById('simulation-log').innerHTML = '<div class="p-4 text-center"><i class="bi bi-clock-history text-muted mb-2" style="font-size: 2rem;"></i><p>Events will appear here once simulation starts</p></div>';
+            document.getElementById('defense-table').querySelector('tbody').innerHTML = '<tr><td colspan="4" class="text-center"><p class="my-4 text-muted">Defense actions will appear here during simulation</p></td></tr>';
+            document.getElementById('event-counter').textContent = '0';
+            
+            // Reset buttons
+            document.getElementById('start-simulation-btn').innerHTML = '<i class="bi bi-play-fill"></i> Start Simulation';
+            document.getElementById('start-simulation-btn').disabled = false;
+            this.disabled = true;
+        });
+        
+        // Toggle between network and attack tree views
+        document.querySelectorAll('.view-toggle-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Handle view change
+                const viewType = this.getAttribute('data-view');
+                if (viewType === 'tree' && network) {
+                    showToast('Attack tree view is not implemented in this demo', 'View Change', 'info');
+                }
+            });
+        });
+        
+        // Download report button handler
+        document.getElementById('download-report-btn').addEventListener('click', function() {
+            showToast('Generating and downloading simulation report...', 'Report', 'info');
+            
+            // Simulate download delay
+            setTimeout(() => {
+                showToast('Report downloaded successfully!', 'Success', 'success');
+            }, 1500);
+        });
+    });
+</script>
+{% endblock %}

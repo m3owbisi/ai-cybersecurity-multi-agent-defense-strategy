@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block title %}AI Cybersecurity Platform | Home{% endblock %}
+
+{% block page_title %}AI-Driven Cybersecurity Platform{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">Home</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="card-title">Multi-Agent AI for Coordinated Cyber Offense and Defense</h2>
+                <p class="lead">
+                    Advanced cybersecurity platform leveraging AI agents for threat detection, 
+                    defense coordination, and offensive security simulation.
+                </p>
+                <p class="mb-4">
+                    This platform utilizes multiple specialized AI agents working together to monitor network 
+                    traffic, detect threats, coordinate defensive measures, and simulate attack scenarios for 
+                    training and system hardening.
+                </p>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
+                    <a href="/dashboard" class="btn btn-primary me-md-2">
+                        <i class="bi bi-graph-up"></i> View Dashboard
+                    </a>
+                    <a href="/simulation" class="btn btn-outline-light">
+                        <i class="bi bi-hdd-network"></i> Run Simulation
+                    </a>
+                </div>
+                
+                <div class="row text-center mt-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 rounded bg-dark">
+                            <i class="bi bi-shield-lock display-5 text-primary mb-3"></i>
+                            <h4>Defensive AI</h4>
+                            <p class="small">Intelligent defensive measures and automated response</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 rounded bg-dark">
+                            <i class="bi bi-radioactive display-5 text-danger mb-3"></i>
+                            <h4>Offensive AI</h4>
+                            <p class="small">Ethical attack simulation and vulnerability discovery</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 rounded bg-dark">
+                            <i class="bi bi-stars display-5 text-warning mb-3"></i>
+                            <h4>Coordinator AI</h4>
+                            <p class="small">Orchestrates multi-agent system coordination</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">System Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Current Threat Level</h6>
+                    <div id="home-threat-level" class="alert alert-success mb-0">LOW</div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Active Agents</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                            Defense Agent
+                            <span class="badge bg-success rounded-pill">Active</span>
+                        </li>
+                        <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                            Offense Agent
+                            <span class="badge bg-success rounded-pill">Active</span>
+                        </li>
+                        <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                            Detection Agent
+                            <span class="badge bg-success rounded-pill">Active</span>
+                        </li>
+                        <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                            Coordinator Agent
+                            <span class="badge bg-success rounded-pill">Active</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="d-grid">
+                    <a href="/dashboard" class="btn btn-primary mt-2">
+                        <i class="bi bi-arrow-right-circle"></i> View Full Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Latest Security Alerts</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="home-alerts-list">
+                    <div class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-danger me-2">Critical</span>
+                            Potential data exfiltration detected
+                        </div>
+                        <small class="text-muted">Just now</small>
+                    </div>
+                    <div class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-warning me-2">Medium</span>
+                            Unusual login pattern detected
+                        </div>
+                        <small class="text-muted">5m ago</small>
+                    </div>
+                    <div class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-danger me-2">High</span>
+                            Brute force attempt blocked
+                        </div>
+                        <small class="text-muted">15m ago</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <a href="/dashboard#alerts" class="btn btn-sm btn-outline-secondary">View All Alerts</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Security Training</h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    Enhance your cybersecurity skills with our interactive training modules.
+                    Practice defending against various attack scenarios.
+                </p>
+                
+                <div class="list-group mb-3">
+                    <a href="/training#ransomware" class="list-group-item list-group-item-action bg-dark d-flex justify-content-between align-items-center">
+                        Ransomware Defense
+                        <span class="badge bg-danger">Advanced</span>
+                    </a>
+                    <a href="/training#phishing" class="list-group-item list-group-item-action bg-dark d-flex justify-content-between align-items-center">
+                        Phishing Detection
+                        <span class="badge bg-success">Beginner</span>
+                    </a>
+                    <a href="/training#network" class="list-group-item list-group-item-action bg-dark d-flex justify-content-between align-items-center">
+                        Network Security
+                        <span class="badge bg-warning">Intermediate</span>
+                    </a>
+                </div>
+                
+                <div class="d-grid">
+                    <a href="/training" class="btn btn-success">
+                        <i class="bi bi-mortarboard"></i> Start Training
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Platform Capabilities</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="bi bi-shield-check text-primary" style="font-size: 2rem;"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Threat Detection</h5>
+                                <p class="mb-0 small">AI-powered traffic analysis and anomaly detection</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="bi bi-bar-chart text-success" style="font-size: 2rem;"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Visual Dashboard</h5>
+                                <p class="mb-0 small">Real-time security metrics and visualization</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="bi bi-cpu text-warning" style="font-size: 2rem;"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Simulation</h5>
+                                <p class="mb-0 small">Test security measures against simulated attacks</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="bi bi-people text-info" style="font-size: 2rem;"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Training</h5>
+                                <p class="mb-0 small">Interactive security training for personnel</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update home page alerts with latest data
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch the latest alerts
+        fetch('/api/alerts/latest')
+            .then(response => response.json())
+            .then(data => {
+                if (data.alerts && data.alerts.length > 0) {
+                    updateHomeAlerts(data.alerts);
+                }
+                
+                // Update threat level
+                if (data.threat_level) {
+                    updateHomeThreatLevel(data.threat_level);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching alerts:', error);
+            });
+    });
+    
+    // Update the alerts list
+    function updateHomeAlerts(alerts) {
+        const alertsList = document.getElementById('home-alerts-list');
+        if (!alertsList) return;
+        
+        // Clear current alerts
+        alertsList.innerHTML = '';
+        
+        // Add new alerts (limit to 5)
+        alerts.slice(0, 5).forEach(alert => {
+            const alertItem = document.createElement('div');
+            alertItem.className = 'list-group-item bg-dark d-flex justify-content-between align-items-center';
+            
+            // Format timestamp
+            const timestamp = new Date(alert.timestamp);
+            const timeAgo = getTimeAgo(timestamp);
+            
+            // Determine severity class
+            let severityClass = 'bg-info';
+            switch (alert.severity) {
+                case 'critical':
+                    severityClass = 'bg-danger';
+                    break;
+                case 'high':
+                    severityClass = 'bg-danger';
+                    break;
+                case 'medium':
+                    severityClass = 'bg-warning';
+                    break;
+                case 'low':
+                    severityClass = 'bg-success';
+                    break;
+            }
+            
+            alertItem.innerHTML = `
+                <div>
+                    <span class="badge ${severityClass} me-2">${alert.severity.toUpperCase()}</span>
+                    ${alert.title}
+                </div>
+                <small class="text-muted">${timeAgo}</small>
+            `;
+            
+            alertsList.appendChild(alertItem);
+        });
+    }
+    
+    // Update the threat level indicator
+    function updateHomeThreatLevel(threatLevel) {
+        const threatLevelEl = document.getElementById('home-threat-level');
+        if (!threatLevelEl) return;
+        
+        // Reset classes
+        threatLevelEl.className = 'alert mb-0';
+        
+        // Set appropriate class and text
+        switch (threatLevel.toLowerCase()) {
+            case 'critical':
+                threatLevelEl.classList.add('alert-danger', 'pulse');
+                threatLevelEl.textContent = 'CRITICAL';
+                break;
+            case 'high':
+                threatLevelEl.classList.add('alert-danger');
+                threatLevelEl.textContent = 'HIGH';
+                break;
+            case 'medium':
+                threatLevelEl.classList.add('alert-warning');
+                threatLevelEl.textContent = 'MEDIUM';
+                break;
+            case 'low':
+                threatLevelEl.classList.add('alert-success');
+                threatLevelEl.textContent = 'LOW';
+                break;
+            default:
+                threatLevelEl.classList.add('alert-info');
+                threatLevelEl.textContent = 'UNKNOWN';
+        }
+    }
+    
+    // Helper function to format time ago
+    function getTimeAgo(timestamp) {
+        const seconds = Math.floor((new Date() - timestamp) / 1000);
+        
+        let interval = Math.floor(seconds / 31536000);
+        if (interval > 1) return interval + 'y ago';
+        
+        interval = Math.floor(seconds / 2592000);
+        if (interval > 1) return interval + 'mo ago';
+        
+        interval = Math.floor(seconds / 86400);
+        if (interval > 1) return interval + 'd ago';
+        
+        interval = Math.floor(seconds / 3600);
+        if (interval > 1) return interval + 'h ago';
+        
+        interval = Math.floor(seconds / 60);
+        if (interval > 1) return interval + 'm ago';
+        
+        if (seconds < 10) return 'Just now';
+        
+        return Math.floor(seconds) + 's ago';
+    }
+</script>
+{% endblock %}
