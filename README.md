@@ -205,7 +205,7 @@ git push origin feature/your-feature-name
 
 ## 🎥 demo
 
-▶️ [watch demo on youtube](https://youtu.be/your-demo-video-id)
+▶️ [watch demo on youtube](https://youtu.be/356-4RFTUBk?si=tby9zPierGjA8DsC)
 
 *See how AI agents defend, coordinate, and simulate attacks live.*
 
