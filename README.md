@@ -73,17 +73,17 @@ Modern cybersecurity landscapes face growing threats that require adaptive, inte
 ## 📸 screenshots
 
 ### 📊 dashboard
-![dashboard](https://example.com/screenshots/dashboard.png)
+![dashboard]()
 
 *Live threat visualization and system activity monitoring*
 
 ### ⚔️ simulation
-![simulation](https://example.com/screenshots/simulation.png)
+![simulation]()
 
 *Run red-team simulations in a safe, isolated environment*
 
 ### 🎓 training
-![training](https://drive.google.com/file/d/1CklrHiIK1NU37M-hMJIq2dQdB1kH9GwE/view?usp=sharing)
+![training]()
 
 *Hands-on labs and scenarios for skill development*
 
