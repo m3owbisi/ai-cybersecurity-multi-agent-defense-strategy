@@ -79,12 +79,10 @@ Modern cybersecurity landscapes face growing threats that require adaptive, inte
 
 ### ⚔️ simulation
 ![simulation](https://github.com/user-attachments/assets/b351e6f0-2ce5-4409-b0ff-383d716480a9)
-
 *Run red-team simulations in a safe, isolated environment*
 
 ### 🎓 training
 ![training](https://github.com/user-attachments/assets/77807367-dfc5-4c9f-94d2-dd89fb6add36)
-
 *Hands-on labs and scenarios for skill development*
 
 ---
