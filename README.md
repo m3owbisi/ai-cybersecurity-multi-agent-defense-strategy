@@ -1,5 +1,4 @@
-# ai-cybersecurity-multi-agent-defense-strategy
-# 🛡️ AI-Driven Cybersecurity Platform
+# 🛡️ai-driven-cybersecurity-multi-agent-defense-strategy-platform
 
 ![build status](https://img.shields.io/badge/build-passing-brightgreen)
 ![license](https://img.shields.io/badge/license-MIT-blue)
