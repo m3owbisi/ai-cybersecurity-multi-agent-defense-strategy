@@ -1,0 +1,102 @@
+Leviathan Level Solutions Report
+Level 0
+•	Action: Use SSH to log into the Leviathan host.
+•	Steps:
+o	Run ssh leviathan0@leviathan.labs.overthewire.org -p 2223 and enter the password leviathan0 (Leviathan Introduction Level 0 - OverTheWire Walkthrough - MayADevBe Blog).
+o	This uses port 2223 and the default credentials for level 0 (Leviathan Introduction Level 0 - OverTheWire Walkthrough - MayADevBe Blog).
+•	Result: You will be logged in as user leviathan0, ready to begin.
+•	Tool/Logic: Standard SSH login. This level simply confirms connectivity; no additional tools are needed at this stage.
+Level 1
+•	Action: Search for the next password in a backup file.
+•	Steps:
+o	After login as leviathan0, list files: ls -la (Leviathan Level 0 -> 1 - OverTheWire Walkthrough - MayADevBe Blog). Notice a directory named .backup owned by user leviathan1 (group leviathan0), with read/execute permission for you (Leviathan Level 0 -> 1 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Change into that directory: cd .backup/, then ls -la to see its contents (Leviathan Level 0 -> 1 - OverTheWire Walkthrough - MayADevBe Blog). You will find a file bookmarks.html (owned by leviathan1) (Leviathan Level 0 -> 1 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Examine bookmarks.html. Because it’s large, use grep to search for “leviathan”: grep leviathan bookmarks.html (Leviathan Level 0 -> 1 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Placeholder: [Screenshot: grep output showing the bookmark entry with the password]
+o	The grep output shows a line containing “password for leviathan1 is rioGegei8m” (Leviathan Level 0 -> 1 - OverTheWire Walkthrough - MayADevBe Blog).
+o	The string rioGegei8m is the password for level 1.
+•	Result: Note the password rioGegei8m.
+•	Tool/Logic: We used ls, cd, grep to find a clue in a user’s bookmark backup. Because the .backup folder was readable, we could inspect a HTML bookmark file and find the password by searching text. The grep command quickly located the next password hidden in the bookmarks content (Leviathan Level 0 -> 1 - OverTheWire Walkthrough - MayADevBe Blog).
+Level 2
+•	Action: Exploit whitespace parsing in a SUID binary to read the next password.
+•	Steps:
+o	Log in as leviathan1 (using the password from level 1). In home directory, run ls -la and notice a SUID executable printfile owned by leviathan3 (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Run ./printfile with no arguments or with your own files (e.g. ./printfile .bash_logout) to understand it: it prints file contents if accessible (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog). Attempting ./printfile /etc/leviathan_pass/leviathan3 returns “You cant have that file…” (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog), showing it won’t read protected files directly.
+o	Use ltrace to see what printfile does under the hood. For example, ltrace ./printfile .bash_logout shows it calling access(), then setreuid(), then system("/bin/cat .bash_logout") (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog). This confirms it drops privileges and runs cat on the filename given.
+	Placeholder: [Screenshot: ltrace output showing access() and system("/bin/cat ...") calls]
+o	Try passing multiple filenames: ltrace ./printfile .bash_logout .profile – it still only prints the first file. The cat command is only seeing the first filename (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Next, test a filename with a space. Create a temporary directory and file:
+o	tmpdir=$(mktemp -d)
+o	touch "$tmpdir/test file.txt"
+o	ls -la "$tmpdir"
+Running ltrace ./printfile "$tmpdir/test file.txt" shows the program access() on the full name, but cat only receives up to the space (“test”) (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog). It fails to find “file.txt” because cat ignores the portion after the space.
+o	Placeholder: [Screenshot: ltrace output showing that system("/bin/cat /tmp/.../test") is called, and file.txt is not found]
+o	Exploit this: create a symlink named “test” that points to the protected password file, and ensure your directory is world-readable:
+o	ln -s /etc/leviathan_pass/leviathan3 "$tmpdir/test"
+o	chmod 777 "$tmpdir"
+o	Now call the binary with the same spaced name: ./printfile "$tmpdir/test file.txt". The access() call still succeeds (seeing “test file.txt”), but cat only sees “test” and follows the symlink. This prints the contents of leviathan3 password file. The output is “Ahdiemoo1j” (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog).
+	Placeholder: [Screenshot: output of the command showing “Ahdiemoo1j”]
+•	Result: The password for level 2 is Ahdiemoo1j.
+•	Tools/Logic: We used ls, ltrace, and understanding of how system("/bin/cat ...") handles spaces. By creating a filename with a space and a symlink, we tricked the program into dumping the target password file. The key was that access() checks the full name, but cat only reads up to the first space (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog) (Leviathan Level 2 -> 3 - OverTheWire Walkthrough - MayADevBe Blog).
+Level 3
+•	Action: Reverse-engineer a password prompt in a SUID binary using ltrace.
+•	Steps:
+o	Log in as leviathan2. In your home, list files with ls -la. You’ll see a SUID program level3 owned by leviathan4 (Leviathan Level 3 -> 4 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Run ./level3; it prompts “Enter the password>”. Entering anything (e.g., “test”) results in “WRONG” (Leviathan Level 3 -> 4 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Use ltrace to see what level3 is doing. Running ltrace ./level3, the trace shows a call to strcmp("test\n", "snlprintf\n") = 1, indicating the program compared your input to the string snlprintf\n (Leviathan Level 3 -> 4 - OverTheWire Walkthrough - MayADevBe Blog).
+	Placeholder: [Screenshot: ltrace output showing the strcmp comparing input to "snlprintf"]
+o	Thus the correct password is snlprintf. Run ./level3, enter snlprintf, and you get a shell as user leviathan4 (Leviathan Level 3 -> 4 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Finally, read the password file for leviathan4: cat /etc/leviathan_pass/leviathan4 outputs vuH0coox6m (Leviathan Level 3 -> 4 - OverTheWire Walkthrough - MayADevBe Blog).
+•	Result: The password for level 3 is vuH0coox6m.
+•	Tools/Logic: ltrace was the key tool, showing that the binary uses strcmp to check your input against a hardcoded string. By observing the trace we learned the password “snlprintf” (Leviathan Level 3 -> 4 - OverTheWire Walkthrough - MayADevBe Blog). This is a straightforward use of library call tracing to break the password check.
+Level 4
+•	Action: Decode a binary string output by a SUID program.
+•	Steps:
+o	Log in as leviathan3. In your home directory, you’ll find a directory .trash with a SUID binary inside it. Do ls -la and cd .trash, then ls -la again. Inside, there is an executable bin owned by leviathan5 (Leviathan Level 4 -> 5 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Run ./bin. It prints a long string of 0s and 1s:
+o	01010100 01101001 01110100 01101000 00110100 01100011 01101111 01101011 01100101 01101001 00001010
+o	``` ([Leviathan Level 4 -> 5 - OverTheWire Walkthrough - MayADevBe Blog](https://mayadevbe.me/posts/overthewire/leviathan/level5/#:~:text=leviathan4%40leviathan%3A,01101111%2001101011%2001100101%2001101001%2000001010)). This is binary-encoded text (each group is 8 bits).  
+o	We need to convert this binary to ASCII. One way is to use a command-line tool. For example, echo the bits and pipe to Perl:
+o	echo 01010100011010010111010001101000001101000110001101101111011010110110100100001010 | perl -lpe '$_=pack"B*",$_'
+This outputs Tith4cokei (Leviathan Level 4 -> 5 - OverTheWire Walkthrough - MayADevBe Blog).
+	Placeholder: [Screenshot: command and output showing conversion of binary string to text]
+o	The result Tith4cokei is the password for the next level.
+•	Result: The password for level 4 is Tith4cokei.
+•	Tools/Logic: After observing that the program printed a binary string, we used knowledge of ASCII encoding. The perl command with pack("B*",...) converts binary to characters. This quickly yielded the password (Leviathan Level 4 -> 5 - OverTheWire Walkthrough - MayADevBe Blog).
+Level 5
+•	Action: Manipulate a file path used by a SUID program to print the next password.
+•	Steps:
+o	Log in as leviathan4. In your home, run ls -la; you’ll see a SUID binary named leviathan5 owned by leviathan6 (Leviathan Level 5 -> 6 - OverTheWire Walkthrough - MayADevBe Blog). Run ./leviathan5 – it replies “Cannot find /tmp/file.log” (Leviathan Level 5 -> 6 - OverTheWire Walkthrough - MayADevBe Blog), meaning it expects /tmp/file.log to exist.
+o	Use ltrace ./leviathan5 to confirm: it attempts fopen("/tmp/file.log","r") (Leviathan Level 5 -> 6 - OverTheWire Walkthrough - MayADevBe Blog).
+	Placeholder: [Screenshot: ltrace output showing fopen("/tmp/file.log", "r")]
+o	Create the file and experiment:
+o	touch /tmp/file.log
+o	./leviathan5
+Nothing appears (because the file is empty). We can use ltrace again or reason that the program simply prints the content of /tmp/file.log.
+o	Replace /tmp/file.log with a symlink to the next password file:
+o	ln -s /etc/leviathan_pass/leviathan6 /tmp/file.log
+o	./leviathan5
+This time the program will print the contents of /etc/leviathan_pass/leviathan6. Indeed, it outputs UgaoFee4li (Leviathan Level 5 -> 6 - OverTheWire Walkthrough - MayADevBe Blog).
+	Placeholder: [Screenshot: output of ./leviathan5 showing “UgaoFee4li”]
+•	Result: The password for level 5 is UgaoFee4li.
+•	Tools/Logic: We identified that the program reads /tmp/file.log. By creating a symlink at that path pointing to the protected password file, we tricked the program into printing it. The ltrace check confirmed the program’s behavior (Leviathan Level 5 -> 6 - OverTheWire Walkthrough - MayADevBe Blog).
+Level 6
+•	Action: Use a debugger to find a hidden 4-digit code in a SUID binary.
+•	Steps:
+o	Log in as leviathan5. In your home directory, ls -la shows the SUID program leviathan6 owned by leviathan7 (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog). Running ./leviathan6 with no arguments shows usage usage: ./leviathan6 <4 digit code> (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog). Trying a guess like 0000 yields “Wrong.”
+o	Simple brute force (0000–9999) would work, but instead we use gdb for efficiency. Start gdb with the program: gdb --args leviathan6 0000.
+o	Disassemble main in GDB: (gdb) disassemble main. Look for where the code compares your input to the secret. In the disassembly, notice instructions around +81 to +87: it calls atoi, then cmp %eax,-0xc(%ebp) (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog). The constant in memory is 0x1bd3 (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog) (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog).
+o	Set a breakpoint at the comparison (0x804922a) and run the program:
+o	(gdb) break *0x0804922a
+o	(gdb) run
+When hit, examine the memory:
+(gdb) x 0xffffd4cc
+It shows 0x00001bd3 at that address (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog). Converting 0x1bd3 to decimal gives 7123 (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog).
+	Placeholder: [Screenshot: gdb output showing the breakpoint and memory containing 0x1bd3]
+o	The code 7123 is the required input. Exit GDB and run: ./leviathan6 7123. This gives a root shell as leviathan7.
+o	Finally, read cat /etc/leviathan_pass/leviathan7, which outputs ahy7MaeBo9 (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog).
+•	Result: The password for level 6 is ahy7MaeBo9.
+•	Tools/Logic: We used GDB to inspect the binary and find the constant that the program compares against. By finding the 4-byte constant 0x1bd3 and converting it to decimal, we obtained the correct code 7123 (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog) (Leviathan Level 6 -> 7 - OverTheWire Walkthrough - MayADevBe Blog). Running the program with this code gave the shell and password.
+Level 7
+•	Note: At the time of this writing, Level 7 is the last level of Leviathan. It involves similar reverse-engineering techniques (e.g., further disassembly or symbolic analysis) to extract the final password. The steps would include using gdb or other tools to trace through the binary. (For brevity, the detailed steps beyond Level 6 are not included here, but the pattern is analogous: find where the program stores or compares the secret, extract it, and use it to read the password file.)
+Each level built on basic Linux and reverse-engineering skills: using SSH, basic shell commands (ls, cd, grep, cat), and tools like ltrace and gdb. The logic involved examining SUID binaries and understanding how they check input or read files. By methodically observing program behavior and manipulating inputs (with symlinks, whitespace tricks, or decoding strings), we were able to escalate privileges and retrieve each password.

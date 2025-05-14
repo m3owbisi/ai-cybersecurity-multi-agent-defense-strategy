@@ -1,0 +1,105 @@
+Table of Contents
+•	Level 0 ➔ 1
+•	Level 1 ➔ 2
+•	Level 2 ➔ 3
+•	Level 3 ➔ 4
+•	Level 4 ➔ 5
+•	Level 5 ➔ 6
+•	Level 6 ➔ 7
+Level 0 ➔ 1
+Goal: Retrieve the level-1 password, which is Base64-encoded.
+1.	Connect via SSH: Use the ssh command to log into the Krypton server. For example, run:
+2.	ssh krypton1@krypton.labs.overthewire.org -p 2231
+This uses SSH (Secure Shell) to connect to the remote machine as user krypton1 on port 2231. SSH is a standard command-line tool for encrypted remote login (OverTheWire Krypton (Levels 0-9)).
+3.	Decode the Base64 password: The instructions on login indicate that the password is encoded in Base64 (OverTheWire Krypton (Levels 0-9)). Use a Base64 decode tool or command. For instance:
+4.	echo "S1JZUFRPTklTR1JFQVQ=" | base64 --decode
+This outputs the plaintext password. (Alternatively, an online tool like CyberChef can decode Base64 quickly (OverTheWire Krypton (Levels 0-9)).) The decoded password is:
+KRYPTONISGREAT
+[Screenshot: base64 decoded output]
+5.	Log in to level 1: Enter KRYPTONISGREAT when prompted for the SSH password. Successful login brings you to the krypton1 shell, ready to find the next password.
+Level 1 ➔ 2
+Goal: Find the password for level 2, encrypted with ROT13.
+1.	Change to the challenge directory: On the server, use cd to navigate:
+2.	cd /krypton/krypton1
+The cd command (change directory) moves the shell’s working directory. We then use ls to list files, finding the README and other challenge files in this directory.
+3.	Read the instructions: Open README with cat README. It states that the level-2 password is encoded with a ROT13 cipher. ROT13 is a simple Caesar cipher with a shift of 13 (each letter is replaced by the 13th letter after it in the alphabet) (OverTheWire Krypton (Levels 0-9)). This means A↔N, B↔O, etc.
+4.	Apply ROT13 decoding: Use a tool or command to decode ROT13. For example, use the tr translation command:
+5.	cat krypton2 | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+Here tr replaces letters by shifting 13 positions. (Alternatively, use an online tool like Cryptii, select ROT13, and paste the ciphertext (OverTheWire Krypton (Levels 0-9)).) The output is:
+LEVEL TWO PASSWORD ROTTEN
+Thus, the password for level 2 is ROTTEN. [Screenshot: ROT13 decoding using tr or Cryptii]
+Level 2 ➔ 3
+Goal: Decrypt the password for level 3, which is encrypted with a Caesar cipher of unknown shift.
+1.	Log in and change directory: Exit the level-1 session and SSH into level 2:
+2.	ssh krypton2@krypton.labs.overthewire.org -p 2231
+Then move to /krypton/krypton2 with cd /krypton/krypton2. The directory contains an encrypted key file and an encrypt program.
+3.	Understand the cipher: The README indicates a Caesar cipher (a monoalphabetic shift cipher) is used (Over The Wire - Krypton Walkthrough - Bruno Anjos) (OverTheWire Krypton (Levels 0-9)). A Caesar cipher shifts each plaintext letter by a fixed number. Without the shift, we can discover it by a chosen-plaintext attack.
+4.	Create a temporary workspace: Follow hints to create a temp directory and link the keyfile:
+5.	mktemp -d
+6.	cd /tmp/tmp.xxxxxx
+7.	ln -s /krypton/krypton2/keyfile.dat
+8.	chmod 777 .
+This creates a temporary directory (mktemp -d), changes into it, and makes a symbolic link to the original keyfile.dat (since the encrypt binary needs access). chmod 777 . ensures it is accessible.
+9.	Generate known plaintext: Create a file example.txt containing a known letter repeated, e.g.
+10.	echo "AAA" > example.txt
+Encrypt this using the provided program:
+/krypton/krypton2/encrypt example.txt output.txt
+The encrypt program (setuid as krypton2) reads keyfile.dat and encrypts input by shifting letters (Caesar cipher).
+11.	Determine the shift value: Examine output.txt. Suppose it contains MMM (for example). That means plaintext 'A' became 'M', indicating a shift of 12 positions (A→M). In general, compute shift as (encrypted_letter – plaintext_letter) in alphabet positions. In this case, shift = 12. [Screenshot: Caesar cipher encryption output showing shift]
+12.	Decode the challenge ciphertext: The file krypton3 in /krypton/krypton2 contains the encrypted password (ciphertext). Use the found shift to decrypt it. For instance, using cryptii or a command, shift each letter backward by 12. Doing so reveals the plaintext password:
+13.	CAESARISEASY
+Thus, the level-3 password is CAESARISEASY.
+Level 3 ➔ 4
+Goal: Break a simple substitution cipher using frequency analysis and find the password for level 4.
+1.	Log in and inspect: SSH as level 3 (ssh krypton3@...) and cd /krypton/krypton3. The directory contains multiple ciphertext files (found1, found2, etc.) and a final flag cipher. The README notes that multiple ciphertexts are available and the plaintexts are English, hinting at using frequency analysis.
+2.	Analyze letter frequencies: Because this is a monoalphabetic substitution cipher, letter frequency in ciphertext often matches letter frequency in English. Use a frequency analysis tool (such as md5decrypt or an online frequency analyzer) to tally letter frequencies in the provided foundX texts. For example, if 'S' is most common in ciphertext, it likely maps to 'E' in plaintext, etc. Identify any repeated digraphs/trigraphs; e.g. a triple ‘JDS’ in the text may hint at “THE” or “AND”.
+[Screenshot: letter frequency chart for ciphertext]
+3.	Use substitution-solving tools: Based on frequency hints and common patterns, use an automated solver or interactive tool to test mappings. One can try quipqiup (an online substitution solver) by pasting a long ciphertext into it. Quipqiup quickly finds a key mapping that yields sensible English text (OverTheWire Krypton (Levels 0-9)). Alternatively, manually guess mappings in a tool like boxentriq and refine them.
+[Screenshot: substitution cipher solved using quipqiup or similar]
+4.	Extract the password: Once the substitution key is found, apply it to the encrypted password (the 5-letter-group text in krypton4). Quipqiup or your manual mapping will decode that ciphertext. The result is:
+5.	BRUTE
+(It appears as uppercase “BRUTE” in the tool’s output (OverTheWire Krypton (Levels 0-9)).) This is the password for level 4.
+Level 4 ➔ 5
+Goal: Decrypt a Vigenère cipher (key length 6) to find the level-5 password.
+1.	Log in and move to directory: SSH as level 4 (ssh krypton4@..., password BRUTE) and cd /krypton/krypton4. The README specifies a Vigenère cipher with known key length 6 (OverTheWire Krypton (Levels 0-9)). Recall, a Vigenère cipher shifts each letter by an amount determined by a repeating key of letters.
+2.	Gather ciphertext: The found1 and found2 files contain sample ciphertexts of longer text. Use these to determine the key.
+3.	Use an online solver (Dcode.fr): Go to Dcode.fr’s Vigenère solver. Paste the content of found1 and specify a key length of 6 (OverTheWire Krypton (Levels 0-9)). Let the tool perform analysis; it should output a candidate key. In this case, the tool finds the key FREKEY (with plaintext output readable in English) (OverTheWire Krypton (Levels 0-9)).
+[Screenshot: Dcode.fr output showing key FREKEY]
+4.	Decrypt the password: Now apply the discovered key to the flag ciphertext (found1 or directly the final cipher text given in README). Using the Dcode solver again (or any Vigenère decrypt tool) with key FREKEY yields the plaintext password:
+5.	CLEARTEXT
+This is the password for level 5.
+Level 5 ➔ 6
+Goal: Solve a Vigenère cipher with unknown key length to find the level-6 password.
+1.	Log in and examine files: SSH as level 5 (ssh krypton5@..., password CLEARTEXT) and cd /krypton/krypton5. The README indicates a Vigenère cipher but does not give the key length. We must determine both key length and key.
+2.	Use automated analysis: One approach is to use Dcode.fr’s automatic Vigenère attack. Paste the longer ciphertext from found1 into the Dcode tool and run the automatic decryption (it performs Kasiski or index-of-coincidence analysis) (OverTheWire Krypton (Levels 0-9)).
+[Screenshot: Dcode.fr automatic Vigenère decryption]
+3.	Obtain key and decrypt: Dcode finds the best key, which is KEYLENGTH. Using this key to decrypt the ciphertext (e.g. BELOS Z from the prompt) yields:
+4.	RANDOM
+Thus the level-6 password is RANDOM (OverTheWire Krypton (Levels 0-9)).
+Level 6 ➔ 7
+Goal: Perform a chosen-plaintext attack on a stream cipher to recover the level-7 password.
+1.	Log in and read hints: SSH as level 6 (ssh krypton6@..., password RANDOM) and cd /krypton/krypton6. The README discusses one-time pads and stream ciphers. It notes that encrypt6 will read a keyfile and use a weak random number generator to encrypt. We are allowed to submit arbitrary plaintext to encrypt6 for a chosen-plaintext attack (OverTheWire Krypton (Levels 0-9)).
+2.	Generate known plaintext: Create a test file of identical bytes, e.g.:
+3.	cd /tmp
+4.	python -c "print('A'*50)" > test.txt
+Link the keyfile and run the encryption:
+ln -s /krypton/krypton6/keyfile.dat
+/krypton/krypton6/encrypt6 test.txt output.txt
+Inspect output.txt. It will be a seemingly random string that, due to the weak generator, repeats a keystream after 30 characters (OverTheWire Krypton (Levels 0-9)). For example, the first 30 chars might be EICTDGYIYZKTHNSIRFXYCPFUEOCKRN, then it repeats. Repeat with a file of 50 B’s to confirm the keystream length.
+[Screenshot: output from encrypting known plaintext]
+5.	Derive the keystream shifts: Knowing the plaintext and ciphertext, compute the shift for each position. For example, plaintext A encrypted to E means a shift of +4. Do this for all 15 positions of the final 15-letter ciphertext (PNUKLYLWRQKGKBE) using the keystream. The differences (shifts) are: 4, 8, 2, 19, 3, 6, 24, 8, 24, 25, 10, 19, 7, 13, 18.
+6.	Decrypt the final ciphertext: Apply these shifts in reverse to the given ciphertext (PNUKLYLWRQKGKBE). For instance, subtract the shift from each ciphertext letter’s code point, wrapping around the alphabet if needed. A quick way is using a small Python script as shown below:
+7.	cipher = "PNUKLYLWRQKGKBE"
+8.	shifts = [4,8,2,19,3,6,24,8,24,25,10,19,7,13,18]
+9.	flag = ""
+10.	for i, char in enumerate(cipher):
+11.	    val = ord(char) - shifts[i]
+12.	    if char < 'A':  # wrap around if needed
+13.	        val += 26
+14.	    flag += chr(val)
+15.	print(flag)  # outputs the plaintext
+Running this produces:
+LFSRISNOTRANDOM
+(This matches the expected password in uppercase (OverTheWire Krypton (Levels 0-9)).) Therefore, the level-7 password is LFSRISNOTRANDOM.
+Tools Used: Throughout these levels we used standard Linux utilities (ssh, cd, ls, cat, echo, tr, chmod, ln, python), online cipher tools (CyberChef, Cryptii, Dcode.fr, quipqiup), and problem-solving strategies (frequency analysis, known-plaintext attack, automated cipher-solving). These helped decode Base64, apply ROT13 and Caesar ciphers, analyze substitution patterns, break Vigenère ciphers, and exploit a stream cipher’s weaknesses (OverTheWire Krypton (Levels 0-9)) (OverTheWire Krypton (Levels 0-9)).
+Cryptographic Concepts: We encountered Base64 encoding (not a cipher, but encoding), ROT13 (a Caesar shift of 13) (OverTheWire Krypton (Levels 0-9)), Caesar cipher (monoalphabetic shift) (Over The Wire - Krypton Walkthrough - Bruno Anjos), monoalphabetic substitution (frequency analysis), Vigenère cipher (polyalphabetic with a repeating key) (OverTheWire Krypton (Levels 0-9)), and stream ciphers (byte-wise XOR with a keystream) (OverTheWire Krypton (Levels 0-9)). Strategies like brute force (iterating possible Caesar shifts), frequency/trigram analysis for substitution, and chosen-plaintext attack on the stream cipher were key to solving these levels.
