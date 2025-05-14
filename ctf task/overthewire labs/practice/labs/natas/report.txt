@@ -1,0 +1,642 @@
+# OverTheWire Natas Web Security Challenge Report (Levels 0-33)
+
+**Based on LearnHacking.io Walkthrough Document**
+
+## Table of Contents
+
+1.  [Introduction](#introduction)
+2.  [Common Tools Explanation](#common-tools-explanation)
+3.  [Level Walkthroughs](#level-walkthroughs)
+    * [Level 0 ➔ 1](#level-0--1)
+    * [Level 1 ➔ 2](#level-1--2)
+    * [Level 2 ➔ 3](#level-2--3)
+    * [Level 3 ➔ 4](#level-3--4)
+    * [Level 4 ➔ 5](#level-4--5)
+    * [Level 5 ➔ 6](#level-5--6)
+    * [Level 6 ➔ 7](#level-6--7)
+    * [Level 7 ➔ 8](#level-7--8)
+    * [Level 8 ➔ 9](#level-8--9)
+    * [Level 9 ➔ 10](#level-9--10)
+    * [Level 10 ➔ 11](#level-10--11)
+    * [Level 11 ➔ 12](#level-11--12)
+    * [Level 12 ➔ 13](#level-12--13)
+    * [Level 13 ➔ 14](#level-13--14)
+    * [Level 14 ➔ 15](#level-14--15)
+    * [Level 15 ➔ 16](#level-15--16)
+    * [Level 16 ➔ 17](#level-16--17)
+    * [Level 17 ➔ 18](#level-17--18)
+    * [Level 18 ➔ 19](#level-18--19)
+    * [Level 19 ➔ 20](#level-19--20)
+    * [Level 20 ➔ 21](#level-20--21)
+    * [Level 21 ➔ 22](#level-21--22)
+    * [Level 22 ➔ 23](#level-22--23)
+    * [Level 23 ➔ 24](#level-23--24)
+    * [Level 24 ➔ 25](#level-24--25)
+    * [Level 25 ➔ 26](#level-25--26)
+    * [Level 26 ➔ 27](#level-26--27)
+    * [Level 27 ➔ 28](#level-27--28)
+    * [Level 28 ➔ 29](#level-28--29)
+    * [Level 29 ➔ 30](#level-29--30)
+    * [Level 30 ➔ 31](#level-30--31)
+    * [Level 31 ➔ 32](#level-31--32)
+    * [Level 32 ➔ 33](#level-32--33)
+    * [Level 33 ➔ 34](#level-33--34)
+4.  [Conclusion](#conclusion)
+
+## Introduction
+
+This report details the step-by-step solutions for levels 0 through 33 of the OverTheWire Natas web security wargame, based on the provided walkthrough document from LearnHacking.io. Each level introduces different web security concepts and vulnerabilities. This report outlines the logic, tools, and commands used to successfully retrieve the password for the subsequent level.
+
+## Common Tools Explanation
+
+While the provided Natas walkthrough primarily utilizes browser-based tools and specific command-line utilities like `curl`, understanding common terminal tools is fundamental in many hacking scenarios. Here's a brief explanation of two such tools:
+
+* **`ssh` (Secure Shell):** This is a network protocol and command-line tool used to securely log into and control remote computers over an unsecured network. It encrypts the entire session, preventing eavesdropping. Syntax typically looks like `ssh username@hostname_or_ip`. OverTheWire's other wargames (like Bandit) rely heavily on SSH, although Natas uses web-based authentication.
+* **`cd` (Change Directory):** A fundamental command in Unix-like operating systems (Linux, macOS) used to navigate the filesystem hierarchy. `cd directory_name` moves into a specified directory, `cd ..` moves up one level, and `cd` (or `cd ~`) typically returns to the user's home directory. Essential for finding files and navigating server directories after gaining access.
+
+Other common tools often used alongside these include:
+
+* **`ls` (List):** Lists files and directories within the current directory.
+* **`cat` (Concatenate):** Displays the contents of files.
+* **`grep` (Global Regular Expression Print):** Searches text using patterns.
+* **`find`:** Searches for files and directories based on various criteria.
+
+Although not heavily featured in this specific Natas walkthrough (which focuses on web vulnerabilities), these commands are crucial for general command-line interaction and post-exploitation activities.
+
+## Level Walkthroughs
+
+### Level 0 ➔ 1
+
+* **Objective:** Find the password hidden on the page.
+* **Tools:** Web Browser (View Page Source or Dev Tools).
+* **Logic:** The password is not directly visible but is embedded within an HTML comment in the page's source code.
+* **Steps:**
+    1.  Navigate to `http://natas0.natas.labs.overthewire.org` and log in.
+    2.  Right-click and select "View Page Source" or open Developer Tools (F12) and inspect the HTML.
+    3.  Locate the HTML comment containing the password for natas1.
+* **Vulnerability:** Information Disclosure (Password in HTML comment).
+
+### Level 1 ➔ 2
+
+* **Objective:** Find the password, bypassing the disabled right-click.
+* **Tools:** Web Browser (Dev Tools).
+* **Logic:** Right-clicking is disabled via JavaScript, but the password is still in an HTML comment. Developer Tools provide access to the source code regardless of JavaScript restrictions.
+* **Steps:**
+    1.  Navigate to `http://natas1.natas.labs.overthewire.org` and log in.
+    2.  Open Developer Tools (F12).
+    3.  Inspect the HTML source in the "Elements" or "Sources" tab.
+    4.  Locate the HTML comment containing the password for natas2.
+* **Vulnerability:** Information Disclosure (Password in HTML comment), Ineffective Client-Side Control (Right-click block).
+
+### Level 2 ➔ 3
+
+* **Objective:** Find the password when the page appears empty.
+* **Tools:** Web Browser.
+* **Logic:** The page includes a seemingly innocuous image file (`pixel.png`) located in a `/files/` directory. Browsing to this directory reveals that directory listing is enabled, exposing a `users.txt` file containing credentials.
+* **Steps:**
+    1.  Navigate to `http://natas2.natas.labs.overthewire.org` and log in.
+    2.  Inspect the page source (Dev Tools) and note the image path: `/files/pixel.png`.
+    3.  Navigate to the parent directory: `http://natas2.natas.labs.overthewire.org/files/`.
+    4.  Observe the directory listing and click on `users.txt`.
+    5.  Find the password for natas3 within the file.
+* **Vulnerability:** Information Disclosure (Directory Listing Enabled), Sensitive Data Exposure.
+
+### Level 3 ➔ 4
+
+* **Objective:** Find information hidden from search engines.
+* **Tools:** Web Browser.
+* **Logic:** The page hints that Google won't find the information. This suggests checking the `robots.txt` file, which instructs web crawlers. The `robots.txt` file reveals a disallowed directory (`/s3cr3t/`) which contains the password file. Directory listing is also enabled in this secret directory.
+* **Steps:**
+    1.  Navigate to `http://natas3.natas.labs.overthewire.org` and log in.
+    2.  Navigate to `http://natas3.natas.labs.overthewire.org/robots.txt`.
+    3.  Note the disallowed directory: `/s3cr3t/`.
+    4.  Navigate to `http://natas3.natas.labs.overthewire.org/s3cr3t/`.
+    5.  Click on `users.txt` in the directory listing.
+    6.  Find the password for natas4 within the file.
+* **Vulnerability:** Information Disclosure (via `robots.txt`), Directory Listing Enabled, Sensitive Data Exposure.
+
+### Level 4 ➔ 5
+
+* **Objective:** Bypass access control based on the HTTP Referer header.
+* **Tools:** Web Browser (Dev Tools), `curl` (or Burp Suite/Browser Extension).
+* **Logic:** The application checks the `Referer` HTTP header to grant access, requiring requests to originate from `http://natas5.natas.labs.overthewire.org/`. This check can be bypassed by manually setting the `Referer` header in the request.
+* **Steps:**
+    1.  Navigate to `http://natas4.natas.labs.overthewire.org` and log in. Observe the access denied message.
+    2.  Use `curl` (or Burp Suite/Modify Header extension) to send a request to the natas4 URL.
+    3.  Include the necessary `Authorization` header (copied from Dev Tools or calculated).
+    4.  Add the `Referer` header with the value `http://natas5.natas.labs.overthewire.org/`.
+    5.  Execute the `curl` command or send the modified request via Burp/extension.
+    6.  The response body will contain the password for natas5.
+* **Vulnerability:** Broken Access Control (Improper check of `Referer` header).
+
+### Level 5 ➔ 6
+
+* **Objective:** Gain access by manipulating a cookie value.
+* **Tools:** Web Browser (Dev Tools), `curl` (or Burp Suite/Browser Extension).
+* **Logic:** The application uses a cookie (`loggedin=0`) to track login status. Changing this cookie value to `loggedin=1` bypasses the check and grants access.
+* **Steps:**
+    1.  Navigate to `http://natas5.natas.labs.overthewire.org` and log in. Observe the "not logged in" message.
+    2.  Use `curl` (or Burp Suite/Browser Extension) to send a request to the natas5 URL.
+    3.  Include the necessary `Authorization` header.
+    4.  Include the `Cookie` header, changing the value from `loggedin=0` to `loggedin=1`.
+    5.  Execute the `curl` command or send the modified request.
+    6.  The response body will contain the password for natas6.
+* **Vulnerability:** Broken Access Control (Client-Side Cookie Manipulation), Insecure Session Management.
+
+### Level 6 ➔ 7
+
+* **Objective:** Find and submit a secret value required by the PHP code.
+* **Tools:** Web Browser.
+* **Logic:** The PHP source code (provided via a link) reveals that it includes a file `includes/secret.inc` and compares a user-submitted `secret` parameter against the value in that file. The `secret.inc` file is directly accessible via the browser.
+* **Steps:**
+    1.  Navigate to `http://natas6.natas.labs.overthewire.org` and log in.
+    2.  Click the "View sourcecode" link or navigate to `index-source.html` to view the PHP code.
+    3.  Note the included file path: `includes/secret.inc`.
+    4.  Navigate directly to `http://natas6.natas.labs.overthewire.org/includes/secret.inc`.
+    5.  Copy the secret value found in the file.
+    6.  Go back to the main natas6 page and submit the copied secret value in the input form.
+    7.  The page will display the password for natas7.
+* **Vulnerability:** Information Disclosure (Source Code Leak), Information Disclosure (Secret File Accessible), Improper Input Validation.
+
+### Level 7 ➔ 8
+
+* **Objective:** Exploit a Local File Inclusion (LFI) vulnerability to read the password file.
+* **Tools:** Web Browser.
+* **Logic:** The application uses a `page` URL parameter to include different files (`index.php?page=home`, `index.php?page=about`). This parameter is not sanitized, allowing directory traversal. By providing the path to the password file (`/etc/natas_webpass/natas8`) in the `page` parameter, its contents are included and displayed on the page.
+* **Steps:**
+    1.  Navigate to `http://natas7.natas.labs.overthewire.org` and log in.
+    2.  Observe the URL structure when clicking "Home" and "About".
+    3.  Modify the URL parameter `page` to point to the target password file: `http://natas7.natas.labs.overthewire.org/index.php?page=/etc/natas_webpass/natas8`.
+    4.  The content of the natas8 password file will be displayed on the page.
+* **Vulnerability:** Local File Inclusion (LFI).
+
+### Level 8 ➔ 9
+
+* **Objective:** Reverse a custom encoding scheme to find the required secret.
+* **Tools:** PHP Sandbox/Compiler, CyberChef.
+* **Logic:** The PHP source code shows that user input (`secret`) is encoded using `bin2hex(strrev(base64_encode($secret)))` and compared against a hardcoded `$encodedSecret`. To find the original secret, the process must be reversed: `base64_decode(strrev(hex2bin($encodedSecret)))`.
+* **Steps:**
+    1.  Navigate to `http://natas8.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the `$encodedSecret` value: `3d3d516343746d4d6d6c315669563362`.
+    3.  Identify the encoding steps: `base64_encode`, `strrev`, `bin2hex`.
+    4.  Determine the decoding steps: `hex2bin`, `strrev`, `base64_decode`.
+    5.  Use a PHP sandbox/compiler or CyberChef to apply the decoding steps to the `$encodedSecret`.
+    6.  The result (`oubWYf2kBq`) is the required secret.
+    7.  Submit this secret value in the form on the natas8 page.
+    8.  The page will display the password for natas9.
+* **Vulnerability:** Information Disclosure (Source Code Leak), Weak Cryptography/Encoding.
+
+### Level 9 ➔ 10
+
+* **Objective:** Exploit a command injection vulnerability in the search functionality.
+* **Tools:** Web Browser.
+* **Logic:** The source code reveals that the user-provided search key (`$key`) is directly inserted into a `passthru("grep -i $key dictionary.txt");` command without sanitization. By injecting shell metacharacters like `;`, additional commands can be executed.
+* **Steps:**
+    1.  Navigate to `http://natas9.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the vulnerable `passthru` call.
+    3.  Inject a command separator and a command into the search input field. For example, to list files: `; ls;`.
+    4.  To retrieve the password, inject the command to display the password file: `; cat /etc/natas_webpass/natas10;`. (The walkthrough initially uses `natas9`, likely a typo).
+    5.  Submit the injection string. The output of the injected command (the password) will be displayed on the page.
+* **Vulnerability:** Command Injection.
+
+### Level 10 ➔ 11
+
+* **Objective:** Bypass command injection filters (`/[;|&]/`).
+* **Tools:** Web Browser.
+* **Logic:** The source code is similar to Level 9, but filters `;`, `|`, and `&`. However, the `grep` command itself allows searching multiple files if listed after the search pattern. Since spaces are not filtered, we can provide the password file path as an additional argument to `grep`.
+* **Steps:**
+    1.  Navigate to `http://natas10.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the `passthru` call and the filter `/[;|&]/`.
+    3.  Craft an input that uses `grep`'s ability to search multiple files. Use `.*` as the search term (to match anything in the target file) followed by a space and the path to the password file.
+    4.  Input into the search field: `.* /etc/natas_webpass/natas11`.
+    5.  Submit the input. The `grep` command will effectively become `grep -i ".* /etc/natas_webpass/natas11" dictionary.txt`. The walkthrough implies it becomes `grep -i .* /etc/natas_webpass/natas11 dictionary.txt` where the second file is searched. The output from the password file will be displayed.
+* **Vulnerability:** Command Injection (Filter Bypass).
+
+### Level 11 ➔ 12
+
+* **Objective:** Decrypt a cookie value using XOR key recovery.
+* **Tools:** Web Browser (Dev Tools), PHP Sandbox/Compiler, CyberChef.
+* **Logic:** The application uses XOR encryption with a repeating key to store session data (including a `showpassword` flag) in a cookie. The key is unknown, but the default cookie value for known plaintext (`{"showpassword":"no","bgcolor":"#ffffff"}`) is provided. By XORing the known plaintext (after JSON encoding and base64 encoding) with the corresponding ciphertext (the default cookie value after base64 decoding), the XOR key can be recovered. This key can then be used to encrypt a modified plaintext (`{"showpassword":"yes","bgcolor":"#ffffff"}`) to create a new cookie value that grants access.
+* **Steps:**
+    1.  Navigate to `http://natas11.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Observe the cookie value (`data`) in Dev Tools and base64 decode it. This is the ciphertext.
+    3.  Use a PHP sandbox to generate the base64-encoded JSON string for the default data (`{"showpassword":"no","bgcolor":"#ffffff"}`). This is the encoded plaintext.
+    4.  Use CyberChef (or a script) to XOR the decoded ciphertext with the decoded plaintext from step 3. The result is the repeating XOR key (`qw8J`).
+    5.  Create the target plaintext: `{"showpassword":"yes","bgcolor":"#ffffff"}`.
+    6.  Use CyberChef (or a script) to:
+        a.  JSON encode the target plaintext.
+        b.  XOR the result with the recovered key (`qw8J`).
+        c.  Base64 encode the final result. This is the new cookie value.
+    7.  In Dev Tools, replace the value of the `data` cookie with the newly generated base64 string.
+    8.  Refresh the page. The password for natas12 will be displayed.
+* **Vulnerability:** Weak Cryptography (Repeating Key XOR), Insecure Session Management (Client-Side State Modification).
+
+### Level 12 ➔ 13
+
+* **Objective:** Upload a web shell, bypassing client-side file extension checks.
+* **Tools:** Text Editor, Web Browser (Dev Tools).
+* **Logic:** The application allows file uploads but attempts to enforce a `.jpg` extension using client-side JavaScript/HTML manipulation. This can be bypassed by intercepting the request or modifying the HTML form elements using Developer Tools before submission, changing the filename back to `.php`. Once the PHP shell is uploaded, commands can be executed via a URL parameter.
+* **Steps:**
+    1.  Navigate to `http://natas12.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Create a simple PHP web shell (e.g., `shell.php` containing `<?php echo shell_exec($_GET['e'].' 2>&1'); ?>`).
+    3.  Use the file upload form to select `shell.php`.
+    4.  Before clicking "Upload File", open Developer Tools (F12).
+    5.  Inspect the file input element or the hidden field containing the filename. The filename will likely have been changed to `<random_string>.jpg`.
+    6.  Modify the HTML attribute (e.g., the `value` or part of the `name`) to change the extension back to `.php` (e.g., `<random_string>.php`).
+    7.  Click "Upload File". The server-side code (which lacks proper extension validation) will save the file as PHP.
+    8.  Note the path to the uploaded file provided by the application (e.g., `upload/<random_string>.php`).
+    9.  Navigate to the uploaded file's URL, appending `?e=<command>` to execute commands (e.g., `?e=ls`, `?e=cat%20/etc/natas_webpass/natas13`).
+    10. The output of the command (the password) will be displayed.
+* **Vulnerability:** Unrestricted File Upload (Lack of Server-Side Validation), Ineffective Client-Side Controls.
+
+### Level 13 ➔ 14
+
+* **Objective:** Bypass server-side file type validation (`exif_imagetype`) during file upload.
+* **Tools:** Text Editor/Hex Editor, Web Browser (Dev Tools).
+* **Logic:** The application now uses `exif_imagetype()` on the server-side, which checks the file's "magic bytes" (the first few bytes) to determine if it's a valid image. This can be bypassed by prepending the required magic bytes for a valid image type (e.g., `GIF87a` for GIF) to the PHP web shell content. The client-side extension renaming still needs to be bypassed using Dev Tools as in Level 12.
+* **Steps:**
+    1.  Navigate to `http://natas13.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the `exif_imagetype()` check.
+    3.  Create a new shell file (e.g., `new-shell.php`).
+    4.  Prepend valid image magic bytes (e.g., `GIF87a`) to the beginning of the PHP shell code: `GIF87a <?php echo shell_exec($_GET['e'].' 2>&1'); ?>`. (Use a hex editor or command-line tools like `echo -n -e '\x47\x49\x46\x38\x37\x61'` if non-ASCII bytes are needed).
+    5.  Upload `new-shell.php` using the form.
+    6.  Use Developer Tools to change the filename extension back to `.php` before submitting.
+    7.  Click "Upload File". The server will accept the file due to the magic bytes, and save it as PHP due to the Dev Tools modification.
+    8.  Note the path to the uploaded file.
+    9.  Navigate to the uploaded file's URL, appending `?e=<command>` (e.g., `?e=cat%20/etc/natas_webpass/natas14`).
+    10. The output (prepended with the magic bytes, followed by the password) will be displayed.
+* **Vulnerability:** Unrestricted File Upload (Insufficient Validation - Magic Byte Bypass), Ineffective Client-Side Controls.
+
+### Level 14 ➔ 15
+
+* **Objective:** Exploit a basic SQL injection vulnerability in the login form.
+* **Tools:** Web Browser, Burp Suite (optional, for debugging).
+* **Logic:** The source code shows that the username and password inputs are directly concatenated into a SQL query without proper escaping or parameterization. Injecting SQL code, specifically `"` to close the username string and `-- ` (with a trailing space) to comment out the rest of the query, allows bypassing the password check. Adding `OR 1=1` creates a condition that is always true, causing the query to return all rows. Since the code grants access if 1 or more rows are returned, this yields the password.
+* **Steps:**
+    1.  Navigate to `http://natas14.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the vulnerable SQL query construction. Note the use of double quotes around inputs.
+    3.  In the username field, enter the SQL injection payload: `" OR 1=1 -- ` (ensure there is a space after `--`).
+    4.  Leave the password field blank.
+    5.  Submit the form.
+    6.  The SQL query becomes effectively `SELECT * from users where username="" OR 1=1 -- ...`, which returns all users.
+    7.  The application grants access and displays the password for natas15.
+* **Vulnerability:** SQL Injection.
+
+### Level 15 ➔ 16
+
+* **Objective:** Exploit a Blind SQL injection vulnerability where only user existence is revealed.
+* **Tools:** Python Script, `requests` library.
+* **Logic:** The application performs a SQL query similar to Level 14 but only indicates whether the queried username exists ("This user exists.") or not ("This user doesn't exist."). No data is directly returned. This is a Boolean-based Blind SQLi scenario. By injecting conditions into the `WHERE` clause, we can ask true/false questions about the database content (specifically, the password for `natas16`) and infer the answer based on the application's response. A script is needed to automate guessing the password character by character. The `BINARY` keyword is needed for case-sensitive comparison.
+* **Steps:**
+    1.  Navigate to `http://natas15.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the vulnerable query and the boolean output ("user exists" / "doesn't exist").
+    3.  Develop a Python script using the `requests` library.
+    4.  The script should iterate through possible characters (A-Z, a-z, 0-9).
+    5.  For each character, the script constructs a payload like `username=natas16" AND BINARY substring(password,1,<char_index>) = '<current_password_guess><char_to_test>' -- `
+    6.  The script sends a POST request with this payload.
+    7.  If the response contains "This user exists.", the tested character is correct. Append it to the password guess and increment the character index.
+    8.  Repeat until the full password (typically 32 characters for Natas) is found.
+    9.  Run the Python script (`python blind-sql.py`).
+    10. The script will print the password for natas16 character by character.
+* **Vulnerability:** Blind SQL Injection (Boolean-Based).
+
+### Level 16 ➔ 17
+
+* **Objective:** Exploit Blind Command Injection by inferring results from application behavior.
+* **Tools:** Python Script, `requests` library.
+* **Logic:** Similar to levels 9/10, there's a command injection vulnerability using `grep`, but with more filters (`/[;|&`\'"]/`). The key `$key` is also quoted in the `passthru` call: `passthru("grep -i \"$key\" dictionary.txt");`. We can still use shell command substitution `$(...)`. The strategy is to inject a nested `grep` command like `$(grep <pattern> /etc/natas_webpass/natas17)`. If `<pattern>` exists in the password file, the inner `grep` returns the password (a non-empty string). If `<pattern>` does *not* exist, the inner `grep` returns an empty string.
+    We append a known string (e.g., "zigzag") *outside* the `$()`: `$(grep <pattern> /etc/natas_webpass/natas17)zigzag`.
+    * If `<pattern>` exists: The outer command becomes `grep -i "<password>zigzag" dictionary.txt`. This likely matches nothing in `dictionary.txt`, resulting in no output containing "zigzag".
+    * If `<pattern>` does not exist: The outer command becomes `grep -i "zigzag" dictionary.txt`. This matches entries in `dictionary.txt`, resulting in output containing "zigzag".
+    This boolean behavior (output contains "zigzag" or not) allows us to brute-force the password character by character. A script is required. The password needs to be built from both ends (appending and prepending) as the initial matching character might not be the first character of the password.
+* **Steps:**
+    1.  Navigate to `http://natas16.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the `passthru` call, the filters, and the quoting of `$key`.
+    3.  Develop Python scripts:
+        a.  `valid-chars.py`: Test each possible character (A-Za-z0-9) using the payload `$(grep <char> /etc/natas_webpass/natas17)zigzag`. If "zigzag" is *not* in the response, the character exists in the password. Collect all valid characters.
+        b.  `solver-first-half.py`: Use the valid characters list. Iterate, testing payloads like `$(grep <current_password_guess><char_to_test> /etc/natas_webpass/natas17)zigzag`. If "zigzag" is *not* in the response, append the character. Run until no more characters are found this way.
+        c.  `solver-second-half.py`: Take the partial password from (b). Iterate, testing payloads like `$(grep <char_to_test><current_password_guess> /etc/natas_webpass/natas17)zigzag`. If "zigzag" is *not* in the response, prepend the character. Run until the full 32-character password is found.
+        d.  (Optional) Combine into `solver-full.py`.
+    4.  Run the scripts (`python <script_name>.py`).
+    5.  The script(s) will print the password for natas17.
+* **Vulnerability:** Blind Command Injection.
+
+### Level 17 ➔ 18
+
+* **Objective:** Exploit Blind SQL injection when there is no discernible output difference.
+* **Tools:** Python Script, `requests` library.
+* **Logic:** The source code is identical to Level 15, but the output ("user exists" / "doesn't exist") is commented out. This requires a time-based Blind SQLi approach. We inject a condition using `IF()` combined with the `sleep()` function. If the condition (e.g., checking a password character) is true, the database sleeps for a specified duration (e.g., 2 seconds), causing a measurable delay in the HTTP response time. If the condition is false, no sleep occurs, and the response is fast. A script automates checking characters based on response time (`response.elapsed`).
+* **Steps:**
+    1.  Navigate to `http://natas17.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Note the lack of differential output compared to Level 15.
+    3.  Develop a Python script using `requests`.
+    4.  The script iterates through possible characters.
+    5.  Construct a payload using `IF(condition, sleep(duration), false)`: `username=natas18" AND IF(BINARY substring(password,1,<char_index>) = '<current_password_guess><char_to_test>', sleep(2), false) -- `
+    6.  Send a POST request with the payload.
+    7.  Measure the response time (`response.elapsed.total_seconds()`).
+    8.  If the time exceeds a threshold (e.g., > 1.5 seconds, accounting for network latency), the character is correct. Append it to the password guess and increment the index.
+    9.  Repeat until the full password is found.
+    10. Run the Python script (`python time-based-sql.py`).
+    11. The script will print the password for natas18 character by character.
+* **Vulnerability:** Blind SQL Injection (Time-Based).
+
+### Level 18 ➔ 19
+
+* **Objective:** Find a valid admin session ID by brute-forcing sequential IDs.
+* **Tools:** Python Script, `requests` library, Web Browser (Dev Tools).
+* **Logic:** The application uses sequential session IDs (PHPSESSID) from 1 to 640. While logging in normally sets `$_SESSION["admin"] = 0`, there might be a pre-existing session ID within the range 1-640 that corresponds to an admin session (`$_SESSION["admin"] = 1`). A script can iterate through all possible IDs, sending requests with each ID set in the `Cookie` header, and check the response for an indication of admin access (i.e., the absence of the "regular user" message).
+* **Steps:**
+    1.  Navigate to `http://natas18.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Observe the session ID generation (`rand(1, 640)`) and the admin check logic.
+    3.  Develop a Python script using `requests`.
+    4.  The script should loop from `count = 1` to `640`.
+    5.  Inside the loop, construct the `Cookie` header: `Cookie: PHPSESSID=<count>`.
+    6.  Send a GET request to the index page including the Basic Auth header and the crafted Cookie header.
+    7.  Check if the response text *does not* contain "You are logged in as a regular user".
+    8.  If the message is missing, the current `count` is the admin session ID. Print the response text (which should contain the password).
+    9.  Run the Python script (`python bruteforce-phpsessid.py`).
+    10. The script will find the admin session ID (119) and print the response containing the password for natas19.
+* **Vulnerability:** Predictable Session IDs, Session Fixation (potential).
+
+### Level 19 ➔ 20
+
+* **Objective:** Find a valid admin session ID where the ID is hex-encoded and includes the username.
+* **Tools:** Python Script, `requests` library, Web Browser (Dev Tools).
+* **Logic:** Similar to Level 18, but the session ID format is `<number>-<username>`, and this entire string is hex-encoded. Logging in as "admin" generates IDs like `71-admin` (hex: `37312d61646d696e`). We need to brute-force the number part (1-640), construct the string `<number>-admin`, hex-encode it, and use that as the PHPSESSID in the cookie, checking for admin access.
+* **Steps:**
+    1.  Navigate to `http://natas19.natas.labs.overthewire.org` and log in.
+    2.  Log in with username "test" and observe the PHPSESSID in Dev Tools. Decode it from hex to see the pattern `<number>-test`.
+    3.  Log in with username "admin" and observe the PHPSESSID. Decode it to see the pattern `<number>-admin`.
+    4.  Develop a Python script using `requests`.
+    5.  The script loops from `count = 1` to `640`.
+    6.  Inside the loop:
+        a.  Construct the string: `str(count) + "-admin"`.
+        b.  Hex-encode this string.
+        c.  Construct the `Cookie` header: `Cookie: PHPSESSID=<hex_encoded_string>`.
+    7.  Send a GET request with Basic Auth and the crafted Cookie.
+    8.  Check if the response text *does not* contain "You are logged in as a regular user".
+    9.  If the message is missing, print the response text (containing the password).
+    10. Run the Python script (`python bruteforce-hex-phpsessid.py`).
+    11. The script will find the correct hex-encoded admin session ID (corresponding to `281-admin`) and print the password for natas20.
+* **Vulnerability:** Predictable Session IDs (with encoding), Session Fixation (potential).
+
+### Level 20 ➔ 21
+
+* **Objective:** Exploit flawed custom session handling logic to inject admin status.
+* **Tools:** Burp Suite (Repeater).
+* **Logic:** The application implements custom session read (`myread`) and write (`mywrite`) handlers. `mywrite` saves session data to a file line by line (`key value\n`), sorting keys first. `myread` reads the file line by line, splitting by space, and populating `$_SESSION`. Crucially, the input (`name` parameter) is not sanitized for newlines before being written to the file. By injecting a newline (`\n` or URL-encoded `%0A`) followed by `admin 1` into the `name` parameter, we can write two lines to the session file: `name <value>` and `admin 1`. Because `mywrite` sorts keys, `admin 1` will be written first. When `myread` processes the file, it will correctly populate `$_SESSION['admin'] = 1`.
+* **Steps:**
+    1.  Navigate to `http://natas20.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Analyze the `myread` and `mywrite` functions, noting the file format, lack of input sanitization for newlines, and key sorting.
+    3.  Use the form to submit a name (e.g., "test"). Capture the POST request in Burp Suite.
+    4.  Send the request to Burp Repeater.
+    5.  Modify the `name` parameter value. Replace "test" with `test%0Aadmin%201` (URL-encoded version of `test\nadmin 1`).
+    6.  Append `?debug` to the request path (`/index.php?debug`) to see session details.
+    7.  Send the modified request.
+    8.  Observe the response. The debug output will show `$_SESSION['admin'] = 1`, and the main content will display the password for natas21.
+* **Vulnerability:** Improper Input Validation (Newline Injection), Flawed Custom Session Handling.
+
+### Level 21 ➔ 22
+
+* **Objective:** Exploit session fixation across co-located subdomains.
+* **Tools:** Burp Suite (Repeater).
+* **Logic:** The target site (`natas21`) requires `$_SESSION['admin'] = 1`. A second site (`natas21-experimenter`) exists on the same server and shares the session storage mechanism (likely file-based). The experimenter site allows setting arbitrary session variables via POST parameters due to insufficient validation, even though it only presents form fields for CSS properties. By sending a POST request to the experimenter site with an added `admin=1` parameter, we set the admin flag in the shared session data. Immediately making a request to the target site (`natas21`) using the *same* PHPSESSID cookie allows us to access the protected resource.
+* **Steps:**
+    1.  Navigate to `http://natas21.natas.labs.overthewire.org` and log in. Note the requirement for admin access.
+    2.  Navigate to `http://natas21-experimenter.natas.labs.overthewire.org`. View its source code. Note the lack of input key validation in the POST handling section.
+    3.  In Burp Suite, capture the POST request made when submitting the form on the experimenter site. Send it to Repeater.
+    4.  Capture a GET request to the main natas21 site. Send it to Repeater.
+    5.  In the Repeater tab for the experimenter POST request:
+        a.  Append `&admin=1` to the POST request body data.
+        b.  Append `?debug` to the request path (`/index.php?debug`).
+        c.  Send the request. Note the `PHPSESSID` cookie value in the request headers. Observe `admin=>1` in the response.
+    6.  In the Repeater tab for the natas21 GET request:
+        a.  Replace its `PHPSESSID` cookie value with the one used in step 5c.
+        b.  Append `?debug` to the request path (`/index.php?debug`).
+        c.  Send this request *immediately* after sending the request in step 5c.
+    7.  The response will show `admin=>1` and display the password for natas22.
+* **Vulnerability:** Session Fixation (Cross-Subdomain), Improper Input Validation.
+
+### Level 22 ➔ 23
+
+* **Objective:** Access information protected by a redirect.
+* **Tools:** `curl`, Burp Suite.
+* **Logic:** The application checks for a `revelio` GET parameter. If present *and* the user is not admin (`$_SESSION['admin'] != 1`), it issues an HTTP 302 redirect back to the index page. However, the password information is added to the response *before* the redirect header is sent. By intercepting the response before the browser follows the redirect, the password can be obtained.
+* **Steps:**
+    1.  Navigate to `http://natas22.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the redirect logic based on the `revelio` parameter and non-admin status.
+    3.  **Method 1 (curl):** Use `curl` with the `-H 'Authorization: ...'` header but *without* the `-L` flag (which follows redirects). Request the URL `http://natas22.natas.labs.overthewire.org/index.php?revelio`. The raw response body containing the password will be printed to the terminal before any redirect is followed.
+    4.  **Method 2 (Burp Suite):** Make the request `http://natas22.natas.labs.overthewire.org/index.php?revelio` in the browser (with Burp proxying). In Burp's Proxy History, examine the response for this request. The response body will contain the password, even though the status code is 302 Found. Alternatively, set Burp Proxy Options to intercept and modify responses, changing the 302 status to 200.
+* **Vulnerability:** Information Disclosure (Sensitive Data Sent Before Redirect).
+
+### Level 23 ➔ 24
+
+* **Objective:** Bypass a password check involving `strstr()` and numeric comparison in PHP.
+* **Tools:** Web Browser, PHP Sandbox (optional).
+* **Logic:** The source code requires the submitted `passwd` parameter to satisfy two conditions: `strstr($_REQUEST["passwd"],"iloveyou")` (must contain "iloveyou") AND `($_REQUEST["passwd"] > 10)`. Due to PHP's type juggling, when comparing a string to an integer using `>`, PHP attempts to interpret the beginning of the string as a number. If the string starts with digits forming a number greater than 10, the second condition is met.
+* **Steps:**
+    1.  Navigate to `http://natas23.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the two conditions using `strstr` and numeric comparison (`> 10`).
+    3.  Understand PHP's type juggling for string-to-number comparison.
+    4.  Craft a password that starts with a number greater than 10 and contains "iloveyou". Example: `11iloveyou`, `100iloveyou`.
+    5.  Submit this crafted password in the form.
+    6.  Both conditions will evaluate to true, and the password for natas24 will be displayed.
+* **Vulnerability:** Improper Input Validation, PHP Type Juggling Weakness.
+
+### Level 24 ➔ 25
+
+* **Objective:** Bypass a password check using `strcmp()` in PHP.
+* **Tools:** Web Browser.
+* **Logic:** The source code uses `strcmp()` to compare the submitted password with the actual password. `strcmp()` returns 0 if the strings are equal. PHP's `strcmp()` function behaves unexpectedly when comparing a string against a non-string type, specifically an array. If an array is passed as one of the arguments, `strcmp()` returns `NULL` (or warns and returns `NULL`). In PHP, `NULL` evaluates to `0` in a loose comparison (`== 0`). By submitting the password parameter as an array (e.g., `passwd[]=somevalue`), `strcmp()` returns `NULL`, which satisfies the condition `strcmp($password, $_REQUEST["passwd"]) == 0`.
+* **Steps:**
+    1.  Navigate to `http://natas24.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the password comparison using `strcmp($password, $_REQUEST["passwd"])`.
+    3.  Understand the behavior of `strcmp()` when passed an array.
+    4.  Modify the URL to submit the `passwd` parameter as an array. Navigate to: `http://natas24.natas.labs.overthewire.org/?passwd[]=anyvalue`.
+    5.  The `strcmp()` function will receive an array, return `NULL`, which evaluates as `0`, bypassing the check.
+    6.  The password for natas25 will be displayed.
+* **Vulnerability:** Improper Input Validation, PHP Type Juggling Weakness (`strcmp` with array).
+
+### Level 25 ➔ 26
+
+* **Objective:** Combine LFI bypass and log poisoning to achieve command execution.
+* **Tools:** Web Browser, Burp Suite (Repeater).
+* **Logic:** The application includes language files based on the `lang` parameter but attempts to prevent LFI (`../`) and access to `natas_webpass`. The `../` filter can be bypassed using `....//` because `str_replace` removes the first `../` leaving the second `../`. The application also logs requests (including the User-Agent header) to a predictable file path (`/logs/natas25_<PHPSESSID>.log`) when directory traversal is attempted. By crafting a request that triggers the LFI bypass and simultaneously includes PHP code within the User-Agent header, we can poison the log file. Then, using the LFI bypass again, we can include the poisoned log file, causing the injected PHP code (which reads the natas26 password) to execute.
+* **Steps:**
+    1.  Navigate to `http://natas25.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the LFI filters (`../`, `natas_webpass`) and the logging function writing User-Agent to `/logs/natas25_<PHPSESSID>.log`.
+    3.  Determine your current `PHPSESSID` using Dev Tools.
+    4.  Craft a URL using the LFI bypass (`....//`) to target your log file: `http://natas25.natas.labs.overthewire.org/?lang=....//....//....//....//....//var/www/natas/natas25/logs/natas25_<YOUR_PHPSESSID>.log`.
+    5.  Send this request using Burp Suite Repeater.
+    6.  Modify the User-Agent header in the request to contain PHP code that will read the next password: `<?php echo shell_exec("cat /etc/natas_webpass/natas26"); ?>`.
+    7.  Send the modified request. This action writes the malicious User-Agent to the log file *and* includes the log file via the LFI in the `lang` parameter.
+    8.  The response will contain the output of the executed PHP code, which is the password for natas26.
+* **Vulnerability:** Local File Inclusion (Filter Bypass), Log Poisoning.
+
+### Level 26 ➔ 27
+
+* **Objective:** Exploit PHP object deserialization via a cookie to write and execute code.
+* **Tools:** PHP CLI/Sandbox, Text Editor, Web Browser (Dev Tools).
+* **Logic:** The application stores drawing data in a base64-encoded, serialized PHP object in the `drawing` cookie. It unserializes this cookie data. A `Logger` class exists with a `__destruct` method that writes `$exitMsg` to `$logFile`. Both `$logFile` and `$exitMsg` are private properties. We can create a serialized `Logger` object where we control the values of `$logFile` (pointing to a web-accessible path with a `.php` extension, e.g., `/var/www/natas/natas26/img/ourshell.php`) and `$exitMsg` (containing PHP code to read the natas27 password). When the application unserializes our crafted `Logger` object from the cookie, the `__destruct` method will trigger, writing our PHP shell code to the specified image directory. Navigating to this newly created PHP file executes the shell code.
+* **Steps:**
+    1.  Navigate to `http://natas26.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the `unserialize(base64_decode($_COOKIE["drawing"]))` call and the `Logger` class with its `__destruct` method.
+    3.  Create a PHP script (`generate_phar.php` in walkthrough, should be `generate_logger.php`) to generate the malicious serialized `Logger` object:
+        * Define the `Logger` class.
+        * In its `__construct` (or directly if modifying properties is possible, though they are private), set `$this->logFile` to an accessible path like `/var/www/natas/natas26/img/natas26_<your_session_id_or_random>.php`.
+        * Set `$this->exitMsg` to `<?php echo shell_exec('cat /etc/natas_webpass/natas27'); ?>`.
+        * Instantiate the `Logger` object.
+        * `echo base64_encode(serialize($logger));`
+    4.  Run the script (`php generate_logger.php`) to get the base64-encoded serialized object string.
+    5.  In the browser (on the natas26 page), open Dev Tools and replace the value of the `drawing` cookie with the generated base64 string.
+    6.  Refresh the page. This triggers the `unserialize` and the `__destruct` method, writing the PHP shell to the specified `$logFile` path. An error might be displayed, which is expected.
+    7.  Navigate directly to the `$logFile` path in your browser (e.g., `http://natas26.natas.labs.overthewire.org/img/natas26_<your_session_id_or_random>.php`).
+    8.  The executed PHP code will display the password for natas27.
+* **Vulnerability:** PHP Object Injection (Deserialization Vulnerability).
+
+### Level 27 ➔ 28
+
+* **Objective:** Exploit MySQL behavior regarding username length limits and lack of unique constraints.
+* **Tools:** Burp Suite (Repeater), Python (optional, for calculating padding).
+* **Logic:** The `users` table defines `username` as `varchar(64)`. MySQL (without strict mode) truncates input longer than the column limit. The table also lacks a UNIQUE constraint on the username. The application logic first checks if a user exists (`validUser`), and if not, creates one (`createUser`). We can create a duplicate `natas28` user by submitting a username that is longer than 64 characters but gets truncated to exactly `natas28` by MySQL during insertion.
+    1.  Submit `natas28<lots_of_spaces>x` with a chosen password (e.g., "password").
+    2.  `validUser` checks for `natas28<lots_of_spaces>x`, finds no user, so `createUser` is called.
+    3.  `createUser` attempts to insert `natas28<lots_of_spaces>x`. MySQL truncates this to `natas28` (because the `x` is beyond the 64 char limit, and trailing spaces are removed). A new row with username `natas28` and password "password" is created.
+    4.  Now, log in with username `natas28` and password "password".
+    5.  `validUser` checks for `natas28`, finds user(s).
+    6.  `checkCredentials` checks for `natas28` with password "password", finds the user we created, returns true.
+    7.  `dumpData` is called for username `natas28`. MySQL likely returns the *first* matching user's data (the original natas28), revealing the real password.
+* **Steps:**
+    1.  Navigate to `http://natas27.natas.labs.overthewire.org` and log in. View the source code and table schema comment.
+    2.  Calculate the number of spaces needed: 64 - length("natas28") = 57.
+    3.  Capture a login POST request in Burp Suite and send it to Repeater.
+    4.  Modify the request body:
+        * `username=natas28` + 57 spaces + `x`
+        * `password=password` (or any chosen password)
+    5.  Send the request. This creates the duplicate user. The response might indicate success or failure for the *long* username, which is fine.
+    6.  Go back to the browser and log in normally using:
+        * Username: `natas28`
+        * Password: `password` (the one chosen in step 4)
+    7.  The application will log you in and dump the data associated with the original `natas28` user, revealing the password for natas28.
+* **Vulnerability:** Improper Input Validation (Length Handling), Database Misconfiguration (Lack of UNIQUE constraint), Data Truncation.
+
+### Level 28 ➔ 29
+
+* **Objective:** Exploit AES ECB mode encryption vulnerability to perform SQL injection.
+* **Tools:** Web Browser, Burp Suite, CyberChef, Python (optional, for scripting/analysis).
+* **Logic:** The search query is encrypted using AES in ECB mode before being sent as a URL parameter. ECB encrypts identical plaintext blocks into identical ciphertext blocks independently, making it vulnerable to replay and block manipulation attacks. By analyzing the structure of the encrypted query for different inputs, we can identify:
+    * A fixed header block(s).
+    * A fixed trailer block(s).
+    * A block that changes when potentially problematic characters (like `'`) are included, suggesting escaping is happening within that block.
+    * The block size (16 bytes).
+    The strategy is to craft a SQL injection payload (e.g., `' UNION SELECT password FROM users; -- `), pad it appropriately (with 9 'A's) so the problematic escaped character (`\'`) falls at a block boundary. Send this request, capture the encrypted query. Then, manually reconstruct a new encrypted query by replacing the "bad" block (containing the escaped quote) with a "dummy" block (generated from encrypting known safe input like spaces) and appending the known good trailer. This reconstructed ciphertext, when decrypted by the server, results in the desired SQL injection executing.
+* **Steps:**
+    1.  Navigate to `http://natas28.natas.labs.overthewire.org` and log in.
+    2.  Experiment with inputs, observe the `query` parameter in `search.php`, and note the base64 structure and padding errors on modification. Suspect block cipher, likely ECB due to fixed parts.
+    3.  Determine block size (16 bytes) by sending inputs of increasing length (`A`, `AA`, `AAA`...) and observing when the ciphertext length increases or blocks change significantly.
+    4.  Identify known good header, trailer, dummy block (e.g., from input ` ` * 10), and the bad block generated when inputting `AAAAAAAAA'`.
+    5.  Craft the desired SQL injection payload, e.g., `' UNION SELECT password FROM users; -- `.
+    6.  Create the initial padded payload: `AAAAAAAAA' UNION SELECT password FROM users; -- `.
+    7.  Submit this payload via the search form. Capture the resulting encrypted `query` parameter value from the `search.php` URL.
+    8.  URL-decode the captured query string.
+    9.  Deconstruct the decoded string: remove the known good header and the identified "bad" block. The remainder is the encrypted payload part.
+    10. Reconstruct the final ciphertext: `[header][dummy block][encrypted payload part][trailer]`.
+    11. Base64 encode the reconstructed ciphertext.
+    12. URL encode the base64 string.
+    13. Create the final URL: `http://natas28.natas.labs.overthewire.org/search.php/?query=<final_encoded_string>`.
+    14. Navigate to this final URL. The SQL injection executes, and the passwords from the `users` table (including natas29's) are displayed.
+* **Vulnerability:** Use of Weak Cryptography (AES ECB Mode), SQL Injection (via block manipulation).
+
+### Level 29 ➔ 30
+
+* **Objective:** Achieve command injection in a Perl script, bypassing a filter for the string "natas".
+* **Tools:** Web Browser, CyberChef (for decoding source).
+* **Logic:** The application is a Perl script (`index.pl`) that takes a `file` parameter. It includes basic command injection potential using `|`, but filters inputs containing "natas". It also requires null termination (`%00`) for the injection to work correctly. The "natas" filter can be bypassed using shell wildcards (`?`) to match single characters within the filtered string when constructing the path to the password file.
+* **Steps:**
+    1.  Navigate to `http://natas29.natas.labs.overthewire.org` and log in.
+    2.  Test basic command injection with null termination: `http://natas29.natas.labs.overthewire.org/index.pl?file=|ls%00`.
+    3.  Attempt to read the password file directly, observe the "meep!" error due to the "natas" filter: `http://natas29.natas.labs.overthewire.org/index.pl?file=|cat%20/etc/natas_webpass/natas30%00`.
+    4.  (Optional) View the source code by injecting `|cat index.pl | base64%00` and decoding the output to confirm the filter `if($f=~/natas/)`.
+    5.  Bypass the filter using wildcards: Replace one character in each "natas" instance with `?`. Construct the URL: `http://natas29.natas.labs.overthewire.org/index.pl?file=|cat%20/etc/n?tas_webpass/n?tas30%00`.
+    6.  Navigate to the crafted URL. The command executes, bypassing the filter, and the password for natas30 is displayed.
+* **Vulnerability:** Command Injection (Perl), Filter Bypass (Wildcards).
+
+### Level 30 ➔ 31
+
+* **Objective:** Exploit SQL injection in Perl DBI by bypassing the `quote()` method.
+* **Tools:** Python Script, `requests` library.
+* **Logic:** The Perl script uses `$dbh->quote(param('password'))` to sanitize the password input before inserting it into a SQL query. The `quote()` method behaves differently when passed an array/list instead of a single scalar value. Specifically, if `quote()` receives a list where the second element indicates a numeric data type (like `SQL_INTEGER`, which has the value 4), it returns the *first* element of the list *unquoted*. By sending the `password` parameter as an array `["' OR 1=1 -- ", 4]`, we trick `quote()` into returning the raw SQL injection string without escaping the quotes.
+* **Steps:**
+    1.  Navigate to `http://natas30.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the use of `$dbh->quote(param('password'))`.
+    3.  Research or recall the Perl DBI `quote()` behavior with array arguments and type specifiers.
+    4.  Develop a Python script using `requests` to send a POST request.
+    5.  Set the `params` dictionary for the POST data such that `password` is a list: `{"username": "any_user", "password": ["'whatever' or 1=1 -- ", 4]}`. (Using `1` or any SQL injection that results in true).
+    6.  Send the POST request using the script.
+    7.  The `quote()` method is bypassed, the SQL injection executes, and the script prints the response containing the password for natas31.
+* **Vulnerability:** SQL Injection (Perl DBI `quote` bypass).
+
+### Level 31 ➔ 32
+
+* **Objective:** Exploit a Perl file upload vulnerability ("Perl Jam 2 Pinnacle Attack") to achieve Remote Code Execution (RCE).
+* **Tools:** Burp Suite (Repeater), Text Editor.
+* **Logic:** The Perl script uses `CGI::upload` and `CGI::param` to handle file uploads. This combination is vulnerable (as described in the "Perl Jam 2" talk). By sending a multipart/form-data request containing two parts named "file", where the *first* part contains the literal string "ARGV" and the *second* part contains the actual uploaded file data, we can trick the script. `param('file')` will return "ARGV" (the first value). When the code executes `while (<$file>)` (where `$file` is now "ARGV"), Perl interprets `<ARGV>` as reading from command-line arguments. We can supply these "arguments" via the URL query string. To achieve RCE instead of just file read, we append a pipe `|` character to the command in the URL query string.
+* **Steps:**
+    1.  Navigate to `http://natas31.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Understand the "Perl Jam 2 Pinnacle Attack" logic involving `upload()`, `param()`, `ARGV`, and `<>`.
+    3.  Create a dummy CSV file (e.g., `test.csv`).
+    4.  Upload `test.csv` via the browser, capturing the request in Burp Suite.
+    5.  Send the request to Burp Repeater.
+    6.  Modify the raw request body:
+        a.  Duplicate the first `Content-Disposition: form-data; name="file"; filename="..."` section.
+        b.  In the *first* duplicated section, remove the `filename="..."` part and replace the content below the blank line with the literal string `ARGV`.
+        c.  Ensure the multipart boundaries are correct and consistent. The request should now have a part named "file" with content "ARGV", followed by the original part named "file" with the CSV data.
+    7.  Modify the request line (the first line of the HTTP request): Append the command to execute, followed by `|`, ensuring it's URL-encoded. Example: `/index.pl?cat%20/etc/natas_webpass/natas32%20|`.
+    8.  Send the modified request.
+    9.  The command executes, and its output (the password for natas32) is displayed in the response body within `<pre>` tags.
+* **Vulnerability:** Arbitrary Command Execution (Perl CGI `upload`/`param`/`ARGV` interaction).
+
+### Level 32 ➔ 33
+
+* **Objective:** Achieve RCE using the same Perl vulnerability as Level 31, but execute a specific file.
+* **Tools:** Burp Suite (Repeater), Text Editor.
+* **Logic:** The vulnerability and exploitation method are identical to Level 31. The only difference is the command we need to execute. The webpage hints we need code execution, and inspecting the directory via `ls . |` (URL encoded: `ls%20.%20|`) reveals a `getpassword` executable.
+* **Steps:**
+    1.  Navigate to `http://natas32.natas.labs.overthewire.org` and log in. View the source code (identical to Level 31).
+    2.  Follow steps 3-6 from the Level 31 walkthrough to set up the malicious multipart request with the `ARGV` injection in Burp Repeater.
+    3.  Modify the request line: Append the command `./getpassword |` (URL encoded: `./getpassword%20|`). The full path becomes `/index.pl?./getpassword%20|`.
+    4.  Send the modified request.
+    5.  The `getpassword` executable runs, and its output (the password for natas33) is displayed in the response body.
+* **Vulnerability:** Arbitrary Command Execution (Perl CGI `upload`/`param`/`ARGV` interaction).
+
+### Level 33 ➔ 34
+
+* **Objective:** Bypass an MD5 signature check on file upload using Phar deserialization.
+* **Tools:** PHP CLI/Sandbox, Text Editor, Burp Suite (Repeater).
+* **Logic:** The application requires uploaded PHP files ("firmware") to have a specific MD5 hash (`adeaf...`). It uses `md5_file()` for the check. PHP file operations, including `md5_file()`, on `phar://` stream wrappers trigger deserialization of metadata stored within the Phar archive. We can craft a Phar archive (`natas33.phar`) containing a serialized `Executor` object in its metadata. This crafted object will have its `$signature` property set to `True` and its `$filename` property set to the name of a simple PHP shell (`shell.php`) that we upload separately.
+    1.  Upload `shell.php` (containing `<?php echo shell_exec('cat /etc/natas_webpass/natas34'); ?>`).
+    2.  Upload the crafted `natas33.phar`.
+    3.  Trigger the vulnerability by making the application perform a file operation on the Phar archive using the `phar://` wrapper (e.g., by attempting to upload a file named `phar://natas33.phar/test.txt`).ssssss
+    4.  `md5_file("phar://natas33.phar/test.txt")` is called implicitly or explicitly by the file handling logic.
+    5.  This triggers deserialization of the metadata in `natas33.phar`. Our crafted `Executor` object overwrites the existing one in memory.
+    6.  The `__destruct` method of our object runs.
+    7.  It checks `if(md5_file($this->filename) == $this->signature)`.
+    8.  Our `$signature` is `True`. `md5_file("shell.php")` returns an MD5 hash string. In PHP, any non-empty string loosely compared (`==`) to `True` evaluates to true.
+    9.  The check passes.
+    10. `passthru("php " . $this->filename)` executes `php shell.php`, printing the final flag.
+* **Steps:**
+    1.  Navigate to `http://natas33.natas.labs.overthewire.org` and log in. View the source code.
+    2.  Identify the `Executor` class, the MD5 check in `__destruct`, and the use of `md5_file()`.
+    3.  Create the PHP script (`natas33.php`) to generate the malicious Phar archive (`natas33.phar`) with a crafted `Executor` object in metadata ($signature=True, $filename="shell.php").
+    4.  Create the simple web shell `shell.php` to cat the final password file.
+    5.  Generate `natas33.phar` using `php -d phar.readonly=0 natas33.php`.
+    6.  Using Burp Repeater:
+        a.  Upload `shell.php`. Modify the filename in the POST request to `shell.php`. Send.
+        b.  Upload `natas33.phar`. Modify the filename in the POST request to `natas33.phar`. Send.
+        c.  Modify the request from step 6b. Change the filename to `phar://natas33.phar/test.txt` (where `test.txt` is the dummy file inside the Phar). Send.
+    7.  The response to the request in step 6c will contain the output from `shell.php`, which is the final password for natas34.
+* **Vulnerability:** PHP Object Injection (Phar Deserialization), PHP Type Juggling (String vs Boolean `==`).
+
+## Conclusion
+
+The OverTheWire Natas wargame provides a practical, hands-on introduction to a wide range of web application vulnerabilities. Starting from basic information disclosure and progressing through command injection, SQL injection (including blind and time-based variants), session manipulation, file inclusion, file upload bypasses, cryptographic weaknesses (XOR, AES ECB), type juggling, and finally deserialization vulnerabilities in both PHP and Perl. Successfully completing these levels requires understanding the underlying technologies (HTTP, HTML, PHP, Perl, SQL), proficiency with tools like browser developer tools, `curl`, and Burp Suite, and the ability to analyze source code and devise creative bypasses for security controls.
